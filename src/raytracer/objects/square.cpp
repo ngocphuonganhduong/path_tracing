@@ -10,7 +10,6 @@ namespace raytracing {
         this->up = up;
         this->right = up.cross_product(normal);
         this->up.normalize();
-        std::cout << right ;
         this->normal.normalize();
     }
 

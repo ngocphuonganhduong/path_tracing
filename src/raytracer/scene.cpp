@@ -75,13 +75,19 @@ namespace raytracing {
         if (this->find_intersection(ray, hit_data))
         {
             shared_texture t = this->get_texture(hit_data.object_id);
+
+            float intensity;
             for (auto light: this->lights)
             {
-                float intensity =  light->get_intensity(hit_data.point, this->objects);
+                if (shadow_mode)
+                    intensity = light->get_intensity(hit_data.point, objects);
+                else
+                    intensity = 1.0;
                 color += light->get_color(t, hit_data) * intensity;
             }
+
             float reflectivity = t->get_reflectivity(hit_data.point);
-            if (reflectivity > 0 && niter < this->max_niter)
+            if (reflectivity > 0 && niter < max_niter)
             {
                 Ray r(hit_data.point, ray.get_direction().reflect(hit_data.normal));
                 color += this->get_color(r, niter + 1) * reflectivity;

@@ -1,6 +1,7 @@
 CC = g++
 RAYTRACER_DIR = src/raytracer
 SRC_DIR = src/
+CR_DIR = src/cloth_rendering
 
 CPP_FILES = $(RAYTRACER_DIR)/vector3.cpp \
 		$(RAYTRACER_DIR)/ray.cpp \
@@ -28,16 +29,15 @@ OBJ_FILES = $(CPP_FILES:.cpp=.o)
 
 
 CXX_FLAGS += -Wall -Wextra -O3 -g -std=c++11 -pthread -faligned-new \
-		-fsanitize=address		\
-		-I$(RAYTRACER_DIR)		\
+		-fsanitize=address	\
+		-I$(RAYTRACER_DIR)	\
+		-I$(CR_DIR)		\
 		-I$(SRC_DIR)
 
 CXX_FLAGS += -lm
-#CXX_FLAGS += -m64 -march=native
-#CXX_FLAGS += -fopt-info-vec-optimized #-fopt-info-vec-missed -ftree-vectorize
 
-BIN = tp1
-TEST = test
+BIN = main
+BIN_RT = rt
 
 %.o: %.c $(H_FILES)
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -45,12 +45,13 @@ TEST = test
 all: build
 
 build: $(OBJ_FILES)
-	$(CC)  tp1.cc -o $(BIN) $(OBJ_FILES) $(CXX_FLAGS)
+	$(CC)  $(SRC_DIR)/main.cpp -o $(BIN) $(OBJ_FILES) $(CXX_FLAGS)
 
-test: $(OBJ_FILES)
-	$(CC) test.cc -o $(TEST) $(OBJ_FILES) $(CXX_FLAGS)
+#For Raytracer testing
+rt: $(OBJ_FILES)
+	$(CC) $(SRC_DIR)/rt.cpp -o $(BIN_RT) $(OBJ_FILES) $(CXX_FLAGS)
 
 .PHONY: all clean build
 
 clean:
-	rm -f $(OBJ_FILES) $(BIN) $(TEST)
+	rm -f $(OBJ_FILES) $(BIN) $(BIN_RT)

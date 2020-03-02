@@ -70,12 +70,22 @@ namespace raytracing {
 
         std::thread threads[NB_THREADS];
         int per_threads = scene.height / NB_THREADS;
-
-        for (int i = 0; i < NB_THREADS; ++i)
+        if (anti_aliasing_mode)
         {
-            threads[i] = std::thread(&Raytracer::render_anti_aliasing, this, i * per_threads, (i + 1) * per_threads);
+            for (int i = 0; i < NB_THREADS; ++i)
+            {
+                threads[i] = std::thread(&Raytracer::render_anti_aliasing, this, i * per_threads, (i + 1) * per_threads);
+            }
+            render_anti_aliasing(NB_THREADS * per_threads, scene.height);
         }
-        this->render_anti_aliasing(NB_THREADS * per_threads, scene.height);
+        else
+        {
+            for (int i = 0; i < NB_THREADS; ++i)
+            {
+                threads[i] = std::thread(&Raytracer::render_no_anti_aliasing, this, i * per_threads, (i + 1) * per_threads);
+            }
+            render_no_anti_aliasing(NB_THREADS * per_threads, scene.height);
+        }
 
         for(int i = 0; i < NB_THREADS; ++i)
             threads[i].join();

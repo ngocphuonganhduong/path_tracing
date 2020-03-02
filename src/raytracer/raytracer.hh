@@ -9,15 +9,15 @@ namespace raytracing {
     class Raytracer {
     public:
         Raytracer(Scene& scene);
+        ~Raytracer();
         void tracing ();
         bool to_ppm(const char* filename);
-        ~Raytracer();
-        void render_anti_aliasing(int starty, int endy);
-        void render_no_anti_aliasing(int starty, int endy);
-
         Vector3 get_color(float x, float y);
 
     private:
+        void render_anti_aliasing(int starty, int endy);
+        void render_no_anti_aliasing(int starty, int endy);
+
         Scene scene;
         Vector3 *pixels;
     };
