@@ -1,6 +1,6 @@
 #include <iomanip>
 #include <cmath>
-#include "scene.hh"
+#include "raytracer.hh"
 
 namespace raytracing {
     //CAMERA
@@ -22,28 +22,27 @@ namespace raytracing {
     }
 
     //SCENE
-    Scene::Scene(int width, int height, Camera cam, int max_niter)
-        : width_(width), height_(height), cam_(cam), max_niter_(max_niter){
-        this->mid_ = cam.pos + cam.forward / float(tan(cam.fov * M_PI/360));
+    Scene::Scene(int width_, int height_, Camera cam_, int max_niter_)
+        : width(width_), height(height_),
+          cam(cam_), max_niter(max_niter_)
+    {
+        this->mid = cam.pos + cam.forward / float(tan(cam.fov * M_PI/360));
     };
-    int Scene::get_width() const {
-        return this->width_;
-    }
-    int Scene::get_height() const {
-        return this->height_;
-    }
+
     void Scene::add_object(std::shared_ptr<Object> obj) {
         this->objects.push_back(obj);
     }
+
     void Scene::add_light(std::shared_ptr<Light> l) {
         lights.push_back(l);
+
     }
     Ray Scene::init_ray(float x, float y) {
-        float u = (float(this->height_) - 2 * y) / float(this->height_);
-        float r = (2 * x - float(this->width_)) / float(this->width_);
-        Vector3 pos = this->mid_ + this->cam_.up * u + this->cam_.right * r;
-        Vector3 direction = pos - this->cam_.pos;
-        return Ray(this->cam_.pos, direction);
+        float u = (float(height) - 2 * y) / float(height);
+        float r = (2 * x - float(width)) / float(width);
+        Vector3 pos = mid + cam.up * u + cam.right * r;
+        Vector3 direction = pos - cam.pos;
+        return Ray(cam.pos, direction);
     }
     std::shared_ptr<Texture> Scene::get_texture(unsigned obj_id) const
     {
@@ -69,18 +68,6 @@ namespace raytracing {
 
         return hit;
     }
-    float Scene::is_shadow_ray(const Ray& ray, unsigned  obj_id) const {
-        HitRecord tem;
-        float max_smooth_ratio = 1.0;
-        float smooth_ratio = 0;
-        for (unsigned int i= 0; i< this->objects.size(); i++)
-        {
-            if (this->objects[i]->hit(ray, tem) && i != obj_id) {
-                return 0.0;
-            }
-        }
-        return max_smooth_ratio;
-    }
 
     Vector3 Scene::get_color(const Ray& ray, int niter){
         Vector3 color;
@@ -94,7 +81,7 @@ namespace raytracing {
                 color += light->get_color(t, hit_data) * intensity;
             }
             float reflectivity = t->get_reflectivity(hit_data.point);
-            if (reflectivity > 0 && niter < this->max_niter_)
+            if (reflectivity > 0 && niter < this->max_niter)
             {
                 Ray r(hit_data.point, ray.get_direction().reflect(hit_data.normal));
                 color += this->get_color(r, niter + 1) * reflectivity;

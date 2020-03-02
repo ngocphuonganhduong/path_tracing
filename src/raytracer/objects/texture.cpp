@@ -45,7 +45,7 @@ namespace raytracing {
           color2(color2){}
 
     Vector3 CheckedTexture::get_color(const Vector3 &p) const {
-        float sines = sin(10 * p.x()) * sin(10 * p.y()) * sin(10 * p.z());
+        float sines = sin(10 * p.x) * sin(10 * p.y) * sin(10 * p.z);
         if (sines < 0) {
             return this->color;
         }

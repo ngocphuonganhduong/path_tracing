@@ -1,7 +1,7 @@
 #ifndef TEXTURE_HH
 #define TEXTURE_HH
 #include <memory>
-#include "vector3.hh"
+#include "../vector3.hh"
 
 namespace raytracing {
     class Texture {

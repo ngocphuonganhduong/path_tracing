@@ -1,6 +1,6 @@
 #ifndef RAY_HH
 #define RAY_HH
-#pragma once
+
 #include "vector3.hh"
 
 namespace raytracing {

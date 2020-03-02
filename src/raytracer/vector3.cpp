@@ -44,9 +44,9 @@ namespace raytracing {
         return *this;
     }
     Vector3& Vector3::operator*=(double c) {
-        this->x_ *= c;
-        this->y_ *= c;
-        this->z_ *= c;
+        this->x *= c;
+        this->y *= c;
+        this->z *= c;
         return *this;
     }
     Vector3& Vector3::operator*=(const Vector3& v) {
@@ -76,7 +76,7 @@ namespace raytracing {
     double Vector3::norm() const {
         return sqrt(this->norm_square());
     }
-    double norm_square() const {
+    double Vector3::norm_square() const {
         return x * x + y * y + z * z;
     }
 
