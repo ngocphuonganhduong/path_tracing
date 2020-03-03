@@ -1,5 +1,4 @@
 #include "object.hh"
-#include <cmath>
 
 namespace raytracing {
     Square::Square(shared_texture texture, const Vector3& center,

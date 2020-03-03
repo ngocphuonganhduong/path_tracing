@@ -1,7 +1,5 @@
 #ifndef LIGHT_HH
 #define LIGHT_HH
-
-#include <vector>
 #include "../objects/object.hh"
 
 namespace raytracing {

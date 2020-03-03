@@ -1,5 +1,4 @@
 #include "object.hh"
-#include <cmath>
 
 namespace raytracing {
     Object::Object(shared_texture texture, Vector3 position)

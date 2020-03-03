@@ -2,7 +2,7 @@
 #define OBJECT_HH
 #include "texture.hh"
 #include "../ray.hh"
-#pragma once
+#include <vector>
 
 namespace raytracing {
     class Object {
@@ -16,6 +16,7 @@ namespace raytracing {
     };
     using shared_obj = std::shared_ptr<Object>;
 
+    //SPHERE
     class Sphere : public Object {
     public:
         Sphere(shared_texture texture, const Vector3& center,
@@ -24,6 +25,8 @@ namespace raytracing {
     private:
         float radius;
     };
+
+    //SQUARE
     class Square : public Object {
     public:
         Square(shared_texture texture, const Vector3& center,
@@ -34,6 +37,28 @@ namespace raytracing {
         Vector3 up;
         Vector3 right;
         float distance;
+    };
+
+
+    //TRIANGLE MESH
+    typedef struct { Vector3 p[3];} Triangle;
+    Triangle operator*(const Triangle& v1, const Vector3& scale);
+
+    using TriVector = std::vector<Triangle>;
+
+    class TriangleMesh : public Object {
+    public:
+        TriangleMesh(shared_texture texture, const Vector3& pos,
+                     TriVector& triangles,
+                     const Vector3& scale);
+
+        bool hit (const Ray& r, HitRecord& hit_data,
+                  const Triangle& tri) const ;
+        bool hit (const Ray& r, HitRecord& hit_data) const final;
+    private:
+        // real pos = pos + tri.pos;
+        Vector3 scale;
+        TriVector triangles;
     };
 
 }

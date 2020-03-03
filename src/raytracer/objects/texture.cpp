@@ -1,5 +1,4 @@
 #include "texture.hh"
-#include <cmath>
 
 namespace raytracing {
     UniformTexture::UniformTexture(const Vector3& color, float ka, float kd,

@@ -1,6 +1,4 @@
 #include "object.hh"
-#include <cmath>
-
 
 namespace raytracing {
     Sphere::Sphere(shared_texture texture,

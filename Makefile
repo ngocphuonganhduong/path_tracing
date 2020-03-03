@@ -9,6 +9,7 @@ CPP_FILES = $(RAYTRACER_DIR)/vector3.cpp \
 		$(RAYTRACER_DIR)/objects/object.cpp\
 		$(RAYTRACER_DIR)/objects/sphere.cpp\
 		$(RAYTRACER_DIR)/objects/square.cpp\
+		$(RAYTRACER_DIR)/objects/triangle_mesh.cpp\
 		$(RAYTRACER_DIR)/lights/ambient.cpp \
 		$(RAYTRACER_DIR)/lights/directional.cpp \
 		$(RAYTRACER_DIR)/lights/point.cpp \

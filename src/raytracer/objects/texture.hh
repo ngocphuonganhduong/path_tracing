@@ -1,6 +1,7 @@
 #ifndef TEXTURE_HH
 #define TEXTURE_HH
 #include <memory>
+#include <cmath>
 #include "../vector3.hh"
 
 namespace raytracing {
