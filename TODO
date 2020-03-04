@@ -1,0 +1,13 @@
+GOAL:
+        soft shadows
+        glossy reflections
+        indirect illumination
+        “colour bleeding” of coloured
+TODO:
+- simple path tracing
+- bidirectional pathtracing
+- parsing obj
+- serializing scene to json
+- parsing json to scene
+- kdtree on triangular meshes
+...
