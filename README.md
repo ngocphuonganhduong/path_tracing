@@ -1,1 +1,1 @@
-# cloth_rendering
+# Path Tracer
