@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "raytracer.hh"
+//#include "pathtracer.hh"
 
-using namespace raytracing;
+//using namespace raytracing;
 int main() {
     return 0;
 }
