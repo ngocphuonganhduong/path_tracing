@@ -7,7 +7,8 @@ TODO:
 - simple path tracing
 - bidirectional pathtracing
 - parsing obj
+- kdtree on triangular meshes
 - serializing scene to json
 - parsing json to scene
-- kdtree on triangular meshes
+
 ...

@@ -26,13 +26,19 @@ RAYTRACER_H_FILES =  $(RAYTRACER_DIR)/vector3.hh \
 
 
 PATHTRACER_FILES = $(PATHTRACER_DIR)/utils/vector3.cpp \
-		$(PATHTRACER_DIR)/objects/material.cpp \
+		$(PATHTRACER_DIR)/utils/ray.cpp \
+		$(PATHTRACER_DIR)/objects/texture.cpp \
+		$(PATHTRACER_DIR)/objects/models/sphere.cpp \
+		$(PATHTRACER_DIR)/objects/models/square.cpp \
+		$(PATHTRACER_DIR)/objects/models/triangle_mesh.cpp \
+
 		#$(PATHTRACER_DIR)/objects/object.cpp\
 		#$(PATHTRACER_DIR)/objects/sphere.cpp\
 		#$(PATHTRACER_DIR)/objects/square.cpp\
 		#$(PATHTRACER_DIR)/objects/triangle_mesh.cpp\
 
 PATHTRACER_H_FILES = $(PATHTRACER_DIR)/utils/vector3.hh \
+		$(PATHTRACER_DIR)/objects/texture.hh\
 		$(PATHTRACER_DIR)/objects/material.hh\
 
 CPP_FILES = $(RAYTRACER_FILES) $(PATHTRACER_FILES)
