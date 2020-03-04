@@ -1,7 +1,8 @@
 #include "texture.hh"
 namespace pathtracing {
 
-    UniformTexture::UniformTexture(const Vector3& color_) : color(color_) {}
+    UniformTexture::UniformTexture(const Vector3& color_)
+        : color(color_) {}
 
     Vector3 UniformTexture::get_color(const Vector3&) const {
         return this->color;

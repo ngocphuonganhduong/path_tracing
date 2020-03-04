@@ -1,6 +1,6 @@
 CC = g++
 
-SRC_DIR = src/
+SRC_DIR = src
 
 PATHTRACER_FILES = $(SRC_DIR)/utils/vector3.cpp \
 		$(SRC_DIR)/utils/ray.cpp \
@@ -8,19 +8,18 @@ PATHTRACER_FILES = $(SRC_DIR)/utils/vector3.cpp \
 		$(SRC_DIR)/objects/models/sphere.cpp \
 		$(SRC_DIR)/objects/models/square.cpp \
 		$(SRC_DIR)/objects/models/triangle_mesh.cpp \
+		$(SRC_DIR)/objects/object.cpp \
 
-		#$(SRC_DIR)/objects/object.cpp\
-		#$(SRC_DIR)/objects/sphere.cpp\
-		#$(SRC_DIR)/objects/square.cpp\
-		#$(SRC_DIR)/objects/triangle_mesh.cpp\
 
 PATHTRACER_H_FILES = $(SRC_DIR)/utils/vector3.hh \
+		$(SRC_DIR)/utils/ray.hh\
 		$(SRC_DIR)/objects/texture.hh\
+		$(SRC_DIR)/objects/models/model.hh\
 		$(SRC_DIR)/objects/material.hh\
+
 
 CPP_FILES = $(RAYTRACER_FILES) $(PATHTRACER_FILES)
 H_FILES = $(RAYTRACER_H_FILES) $(PATHTRACER_H_FILES)
-
 
 
 OBJ_FILES = $(CPP_FILES:.cpp=.o)

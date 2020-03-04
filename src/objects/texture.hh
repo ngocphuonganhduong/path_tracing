@@ -11,7 +11,7 @@ namespace pathtracing {
         virtual Vector3 get_color(const Vector3 &point) const = 0;
     };
 
-    class UniformTexture : Texture {
+    class UniformTexture : public Texture {
     public:
         UniformTexture(const Vector3& color);
         Vector3 get_color(const Vector3 &point) const final;
