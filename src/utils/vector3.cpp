@@ -60,15 +60,16 @@ namespace pathtracing {
         this->z /= c;
         return *this;
     }
-    void Vector3::normalize(){
+    Vector3& Vector3::normalize(){
         *this /= this->norm();
+        return *this;
     }
 
     double Vector3::dot(const Vector3& v) const{
         return x * v.x + y * v.y + z * v.z;
     }
 
-    Vector3 Vector3::cross_product(const Vector3& v) const {
+    Vector3 Vector3::cross(const Vector3& v) const {
         return Vector3(y * v.z - z * v.y, z * v.x - x * v.z,
                        x * v.y - y * v.x);
     }
@@ -78,7 +79,9 @@ namespace pathtracing {
     double Vector3::norm_square() const {
         return x * x + y * y + z * z;
     }
-
+    double Vector3::max() const {
+        return std::max(x, std::max(y, z));
+    }
     Vector3 Vector3::reflect(const Vector3& normal) const
     {
         return *this - normal * normal.dot(*this) * 2.0;

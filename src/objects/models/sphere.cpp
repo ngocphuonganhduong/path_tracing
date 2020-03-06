@@ -3,6 +3,12 @@
 namespace pathtracing {
     Sphere::Sphere(float radius_) : radius(radius_) {}
 
+    Vector3 Sphere::get_sample(const Vector3& pos) const {
+        double a = 2 * M_PI * drand48();
+        double b = 2 * M_PI * drand48();
+        Vector3 s(cos(a) * cos(b), cos(a) * sin(b), sin(a));
+        return pos + s * radius;
+    }
 
     bool Sphere::hit (const Vector3& pos, const Ray& r,
                       HitRecord& hit_data) const
@@ -24,7 +30,7 @@ namespace pathtracing {
             return false;
         }
         hit_data.point = r.get_origin() + r.get_direction() * t;
-        hit_data.direction = hit_data.point - r.get_origin();
+//        hit_data.direction = hit_data.point - r.get_origin();
         hit_data.normal = hit_data.point - pos;
         hit_data.normal.normalize();
         return true;

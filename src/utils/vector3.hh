@@ -24,14 +24,14 @@ namespace pathtracing {
         Vector3& operator*=(double c);
         Vector3& operator*=(const Vector3&);
         Vector3& operator/=(double c);
-        void normalize();
+        Vector3& normalize();
         double dot(const Vector3& v) const;
-        Vector3 cross_product(const Vector3& c) const;
+        Vector3 cross(const Vector3& c) const;
         Vector3 reflect(const Vector3& normal) const;
         void set_values(double x, double y, double z);
         double norm() const;
         double norm_square() const;
-
+        double max() const;
         double x;
         double y;
         double z;

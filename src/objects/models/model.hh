@@ -9,6 +9,7 @@ namespace pathtracing {
     public:
         virtual bool hit(const Vector3& pos, const Ray& r,
                          HitRecord& hit_data) const = 0;
+        virtual Vector3 get_sample(const Vector3& pos) const = 0;
     };
     using shared_mod = std::shared_ptr<Model>;
 
@@ -19,6 +20,7 @@ namespace pathtracing {
         Sphere(float radius);
         bool hit (const Vector3& pos, const Ray& r,
                   HitRecord& hit_data) const final;
+        Vector3 get_sample(const Vector3& pos) const final;
     private:
         float radius;
     };
@@ -34,12 +36,15 @@ namespace pathtracing {
         TriangleMesh(TriVector& triangles,
                      const Vector3& scale);
 
+        bool hit (const Vector3& pos, const Ray& r,
+                  HitRecord& hit_data) const final;
+
+        Vector3 get_sample(const Vector3& pos) const final;
+
+    private:
         bool hit (const Vector3& pos, const Ray& r, HitRecord& hit_data,
                   const Triangle& tri) const;
 
-        bool hit (const Vector3& pos, const Ray& r,
-                  HitRecord& hit_data) const final;
-    private:
         // real pos = pos + tri.pos;
         Vector3 scale;
         TriVector triangles;
@@ -51,6 +56,7 @@ namespace pathtracing {
         Square(const Vector3& normal, const Vector3& up, float distance);
         bool hit (const Vector3& pos, const Ray& r,
                   HitRecord& hit_data) const final;
+        Vector3 get_sample(const Vector3& pos) const final;
     private:
         Vector3 normal;
         Vector3 up;

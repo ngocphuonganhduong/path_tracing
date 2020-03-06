@@ -6,11 +6,14 @@ namespace pathtracing {
     {
         this->normal = normal;
         this->up = up;
-        this->right = up.cross_product(normal);
+        this->right = up.cross(normal);
         this->up.normalize();
         this->normal.normalize();
     }
-
+    Vector3 Square::get_sample(const Vector3& pos) const {
+        return pos + up * (-1 + 2 * drand48()) * distance
+            + right * (-1 + 2 * drand48()) * distance;
+    }
     bool Square::hit (const Vector3& pos, const Ray& r,
                       HitRecord& hit_data) const
     {
@@ -20,7 +23,7 @@ namespace pathtracing {
             if (t > 0.00001)
             {
                 hit_data.point = r.get_origin() + r.get_direction() * t;
-                hit_data.direction = hit_data.point - r.get_origin();
+//                hit_data.direction = hit_data.point - r.get_origin();
                 hit_data.normal = this->normal;
                 hit_data.normal.normalize();
 

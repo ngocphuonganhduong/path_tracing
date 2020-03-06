@@ -9,6 +9,9 @@ PATHTRACER_FILES = $(SRC_DIR)/utils/vector3.cpp \
 		$(SRC_DIR)/objects/models/square.cpp \
 		$(SRC_DIR)/objects/models/triangle_mesh.cpp \
 		$(SRC_DIR)/objects/object.cpp \
+		$(SRC_DIR)/brdf.cpp \
+		$(SRC_DIR)/scene.cpp \
+		$(SRC_DIR)/pathtracer.cpp \
 
 
 PATHTRACER_H_FILES = $(SRC_DIR)/utils/vector3.hh \
@@ -16,6 +19,10 @@ PATHTRACER_H_FILES = $(SRC_DIR)/utils/vector3.hh \
 		$(SRC_DIR)/objects/texture.hh\
 		$(SRC_DIR)/objects/models/model.hh\
 		$(SRC_DIR)/objects/material.hh\
+		$(SRC_DIR)/brdf.hh \
+		$(SRC_DIR)/scene.hh \
+		$(SRC_DIR)/pathtracer.hh \
+
 
 
 CPP_FILES = $(RAYTRACER_FILES) $(PATHTRACER_FILES)

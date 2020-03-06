@@ -5,6 +5,10 @@ namespace pathtracing {
     TriangleMesh::TriangleMesh(TriVector& triangles_, const Vector3& scale_)
         : scale(scale_), triangles(triangles_) {}
 
+    Vector3 TriangleMesh::get_sample(const Vector3& pos) const {
+        return triangles[round(drand48() * (triangles.size() - 1))].p[0];
+    }
+
     bool TriangleMesh::hit (const Vector3& pos, const Ray& r,
                             HitRecord& hit_data, const Triangle& tri) const
     {
@@ -17,7 +21,7 @@ namespace pathtracing {
         Vector3 edge1 = p1 - p0;
         Vector3 edge2 = p2 - p0;
 
-        Vector3 h = r.get_direction().cross_product(edge2);
+        Vector3 h = r.get_direction().cross(edge2);
         float a = edge1.dot(h);
         if (a < -EPSILON || a > EPSILON) {
             float f = 1.0 / a;
@@ -25,15 +29,15 @@ namespace pathtracing {
             float u = f * s.dot(h);
 
             if (u >= 0 && u <= 1) {
-                Vector3 q = s.cross_product(edge1);
+                Vector3 q = s.cross(edge1);
                 float v = f * r.get_direction().dot(q);
                 if (v >= 0.0 && u + v <= 1.0) {
                     float t = f * edge2.dot(q);
                     if (t > EPSILON) {
                         hit_data.point = r.get_origin() + r.get_direction() * t;
-                        hit_data.normal = edge1.cross_product(edge2);
+                        hit_data.normal = edge1.cross(edge2);
                         hit_data.normal.normalize();
-                        hit_data.direction = hit_data.point - r.get_origin();
+//                        hit_data.direction = hit_data.point - r.get_origin();
                         return true;
                     }
 
