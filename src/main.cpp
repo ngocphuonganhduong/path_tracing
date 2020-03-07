@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     shared_text blue_white = std::make_shared<CheckedTexture>(Vector3(0,0,1),
                                                               Vector3(1,1,1));
     //MODEL
-    shared_mod sp_small = std::make_shared<Sphere>(0.5);
+    shared_mod sp_small = std::make_shared<Sphere>(0.4);
     shared_mod sp_med = std::make_shared<Sphere>(1.0);
     TriVector tv;
     shared_mod trimesh = std::make_shared<TriangleMesh>(tv, Vector3(1,1,1));
@@ -58,14 +58,13 @@ int main(int argc, char **argv) {
     shared_mat mat1 = std::make_shared<Material>(ka, kd, ks, s, 1,
                                                   Vector3(1,1,1));
 
-    shared_mat mat2 = std::make_shared<Material>(0, 0, 0, 0, 0,//light source
-                                                 Vector3(1,1,1));
+    shared_mat mat2 = std::make_shared<Material>(0, 0.05, 1);
     //OBJECT
-    shared_obj o1 = std::make_shared<Object>(Vector3(0,14,0), mat1, red, sp_med);
+    shared_obj o1 = std::make_shared<Object>(Vector3(0,10,-3), mat1, red, sp_med);
 
     //LIGHT OBJECT
-    shared_obj o2 = std::make_shared<Object>(Vector3(-1,8,1), Vector3(1,1,1),
-                                             mat1, white, sp_small); //light source
+    shared_obj o2 = std::make_shared<Object>(Vector3(0,12,3.75), Vector3(0.9,0.9,0.9),
+                                             mat2, white, sp_small); //light source
 
     //WALL
     float distance = 16;
