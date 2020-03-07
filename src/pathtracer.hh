@@ -5,7 +5,7 @@
 
 namespace pathtracing {
     extern bool debug;
-
+    extern bool debug_ray;
     class Pathtracer {
     public:
         Pathtracer(Scene& scene, unsigned int n_sam);

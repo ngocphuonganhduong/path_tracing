@@ -23,7 +23,6 @@ namespace pathtracing {
             if (t > 0.00001)
             {
                 hit_data.point = r.get_origin() + r.get_direction() * t;
-//                hit_data.direction = hit_data.point - r.get_origin();
                 hit_data.normal = this->normal;
                 hit_data.normal.normalize();
 

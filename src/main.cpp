@@ -5,15 +5,24 @@ using namespace pathtracing;
 
 int main(int argc, char **argv) {
     unsigned int nb_samples = 4;
-
+    //Debug ray declaration
+    unsigned x = 0;
+    unsigned y = 0;
     for (int i = 1; i < argc; ++i)
     {
         if (strcmp(argv[i], "--debug") == 0) {
             debug = true;
         }
-        if (strcmp(argv[i], "-ns") == 0){
+        else if (strcmp(argv[i], "-ns") == 0){
             ++i;
             nb_samples = std::atoi(argv[i]);
+        }
+        else if (debug && strcmp(argv[i], "--ray") == 0)
+        {
+            debug_ray = true;
+            x = std::atoi(argv[i + 1]);
+            y = std::atoi(argv[i + 2]);
+            i += 2;
         }
     }
     //TEXTURE
@@ -44,8 +53,8 @@ int main(int argc, char **argv) {
     //MATERIAL
     float s = 32; //shininess;
     float ka = 1;
-    float ks = 0.9;
-    float kd = 0.8;
+    float ks = 0.5;
+    float kd = 0.5;
     shared_mat mat1 = std::make_shared<Material>(ka, kd, ks, s, 1,
                                                   Vector3(1,1,1));
 
@@ -55,7 +64,7 @@ int main(int argc, char **argv) {
     shared_obj o1 = std::make_shared<Object>(Vector3(0,14,0), mat1, red, sp_med);
 
     //LIGHT OBJECT
-    shared_obj o2 = std::make_shared<Object>(Vector3(-2,6,2), Vector3(1,1,1),
+    shared_obj o2 = std::make_shared<Object>(Vector3(-1,8,1), Vector3(1,1,1),
                                              mat1, white, sp_small); //light source
 
     //WALL
@@ -86,7 +95,13 @@ int main(int argc, char **argv) {
     scene.add_object(right_w);
 
     Pathtracer pt(scene, nb_samples);
-    pt.render();
-    pt.to_ppm("output.ppm");
+    if (debug_ray)
+    {
+        std::cout << pt.trace(x, y) << "\n";
+    }
+    else {
+        pt.render();
+        pt.to_ppm("output.ppm");
+    }
     return 0;
 }

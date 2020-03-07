@@ -25,7 +25,6 @@ namespace pathtracing {
             return false;
         }
         float t = (-b - sqrt(discriminant) ) / (2.0 * a);
-
         if (t < 0) {
             return false;
         }

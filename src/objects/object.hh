@@ -13,6 +13,11 @@ namespace pathtracing {
         Object(const Vector3& position, shared_mat mat, shared_text text,
                shared_mod model);
         bool hit(const Ray&, HitRecord& hit_data) const;
+        Vector3 get_emitted_at(shared_mat mat, shared_text text,
+                               const HitRecord& hit_data,
+                               const Vector3& cam_to_hit,
+                               const Vector3& p_to_light);
+
         Vector3 get_sample() const;
         Vector3 position; //world position
         Vector3 emitted_rad;

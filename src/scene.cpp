@@ -15,7 +15,7 @@ namespace pathtracing {
 
     std::ostream& operator<<(std::ostream& out, Camera const& cam){
         return out <<  std::setprecision(2) << "camera : pos" << cam.pos
-5B5B5B                   << ", F" << cam.forward << ", U" << cam.up
+                   << ", F" << cam.forward << ", U" << cam.up
                    << ", R" << cam.right << ", fov " << cam.fov;
     }
 
@@ -49,42 +49,62 @@ namespace pathtracing {
             if (this->objects[i]->hit(ray, tem))
             {
                 distance = (tem.point - ray.get_origin()).norm();
-                if (distance < min_distance)
+                if (distance < min_distance && distance > 0.0001)
                 {
                     hit_point = tem;
-//                    hit_point.direction = tem.point - ray.get_origin();
                     hit_point.obj_id = i;
                     min_distance = distance;
                 }
             }
 
-        return min_distance != INFINITY;
+        return min_distance < INFINITY;
     }
 
-    Vector3 Scene::get_radiance(const Ray& ray, int niter, bool ignore_light){
+    Vector3 Scene::get_radiance(const Ray& ray, int niter){
         HitRecord hit_data;
         if (!this->find_intersection(ray, hit_data))
             return Vector3(0,0,0);
 
-        Vector3 normal = hit_data.normal;
-        if (normal.dot(ray.get_direction()) > 0)
-            normal *= -1;
+        if (debug && debug_ray)
+            std::cout << ray << "GET_RAD: obj_id: "<< hit_data.obj_id << "\n";
+
+        if (hit_data.normal.dot(ray.get_direction()) > 0)
+            hit_data.normal *= -1;
 
         shared_obj obj = objects[hit_data.obj_id];
         shared_mat mat = obj->material;
         Vector3 obj_c = obj->texture->get_color(hit_data.point);
-        Vector3 rad = this->ambient_light * mat->ka;
-        if (!ignore_light)
-            rad += obj->emitted_rad; //radiance/color
+        Vector3 rad = this->ambient_light * mat->ka + obj->emitted_rad;
 
         //BIDIRECTIONAL PATHTRACING
-        for(auto o: objects)
+        //LOOP over all objects which is light
+        if (debug && debug_ray)
+            std::cout << "BIDIRECTIONAL pathtracing\n";
+
+        for(unsigned i = 0; i < objects.size(); ++i)
         {
-            if (o->emitted_rad.max() > 0)
+            //To be a light, an object must have emissive radiance
+            if (objects[i]->emitted_rad.max() > 0)
             {
-                Vector3 pos = o->get_sample();
-                Ray lray(pos, pos - hit_data.point);
-                
+                //Ray from hit point to light
+                Vector3 dir = objects[i]->get_sample() - hit_data.point;
+                Ray sray(hit_data.point + dir * 0.0001, dir);
+                if (debug && debug_ray)
+                    std::cout << "Detect light object"<< sray << "\n";
+
+                HitRecord tem;
+                //Check if sray is not a shadow ray
+                if (find_intersection(sray, tem) &&
+                    tem.obj_id == i)
+                {
+                    rad += objects[i]->get_emitted_at(mat, obj->texture,
+                                                      hit_data, cam.pos - hit_data.point,
+                                                      dir);
+                    if (debug && debug_ray)
+                    {
+                        std::cout << "Not a shadow ray:" << rad << "\n";
+                    }
+                }
             }
         }
         if (niter > max_niter)
@@ -102,7 +122,7 @@ namespace pathtracing {
         //double rnd = max_r * rand1();
         //if (rnd < mat->kd)
         //{
-        Vector3 dir = sample_diffuse(normal);
+        Vector3 dir = sample_diffuse(hit_data.normal);
         Ray r_ray(hit_data.point, dir);
         rad += obj_c * get_radiance(r_ray, niter + 1) * mat->kd;// * mat->kd / max_r;
             //}

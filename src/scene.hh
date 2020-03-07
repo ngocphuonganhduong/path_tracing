@@ -28,8 +28,7 @@ namespace pathtracing {
         Ray init_ray(float x, float y);
         bool find_intersection(const Ray& ray, HitRecord &hit_point) const;
 
-        Vector3 get_radiance(const Ray& ray, int niter, bool ignore_light);
-
+        Vector3 get_radiance(const Ray& ray, int niter);
         ~Scene(){};
         std::vector<shared_obj> objects;
 

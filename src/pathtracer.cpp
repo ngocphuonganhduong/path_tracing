@@ -5,7 +5,8 @@
 
 
 namespace pathtracing {
-    bool debug = true;
+    bool debug = false;
+    bool debug_ray = false;
 
     Pathtracer::Pathtracer(Scene& scene_, unsigned int n_samples)
         : scene(scene_)

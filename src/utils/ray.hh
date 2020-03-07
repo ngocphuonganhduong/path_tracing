@@ -20,7 +20,6 @@ namespace pathtracing {
         Vector3 point;
 //        Vector3 direction; //from camera to hit point
         Vector3 normal;
-        float smooth_ratio;
     };
 
 }
