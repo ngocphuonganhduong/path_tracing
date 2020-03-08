@@ -12,6 +12,13 @@ namespace pathtracing {
                shared_mat mat, shared_text text, shared_mod model);
         Object(const Vector3& position, shared_mat mat, shared_text text,
                shared_mod model);
+
+        //constructor with a uniform texture
+        Object(const Vector3& position, const Vector3& emitted_rad,
+               shared_mat mat, const Vector3& color, shared_mod model);
+        Object(const Vector3& position, shared_mat mat, const Vector3& color,
+               shared_mod model);
+
         bool hit(const Ray&, HitRecord& hit_data) const;
         Vector3 get_emitted_at(shared_mat mat, shared_text text,
                                const HitRecord& hit_data,

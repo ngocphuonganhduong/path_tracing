@@ -1,7 +1,7 @@
 #include "pathtracer.hh"
 #include <fstream>
 
-#define NB_THREADS 8
+#define NB_THREADS 20
 
 
 namespace pathtracing {
@@ -54,20 +54,17 @@ namespace pathtracing {
 
     void Pathtracer::render() {
         std::thread threads[NB_THREADS];
-        int per_threads = scene.height / (NB_THREADS - 1);
+        int per_threads = scene.height / NB_THREADS;
         if (debug)
             std::cout << "Start Render scene(" << scene.width
                       << ", " << scene.height << ")\n";
-        for (int i = 0; i < NB_THREADS - 1; ++i)
+        for (int i = 0; i < NB_THREADS; ++i)
         {
             threads[i] = std::thread(&Pathtracer::render_y, this, i,
                                      i * per_threads,
                                      (i + 1) * per_threads);
         }
-        threads[NB_THREADS - 1] = std::thread(&Pathtracer::render_y, this,
-                                              NB_THREADS - 1,
-                                              (NB_THREADS - 1) * per_threads,
-                                              scene.height);
+        render_y(-1, NB_THREADS * per_threads, scene.height);
         for(int i = 0; i < NB_THREADS; ++i)
             threads[i].join();
     }

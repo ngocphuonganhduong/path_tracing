@@ -11,6 +11,12 @@ namespace pathtracing {
                  float reflectivity_, const Vector3& specular_)
             : ka(ka_), kd(kd_), ks(ks_), shininess(shininess_),
               reflectivity(reflectivity_), specular(specular_) {}
+        Material(float ka_, float kd_, float ks_, float shininess_,
+                 float reflectivity_, const Vector3& specular_,
+                 float a_, float b_, float c_)
+            : ka(ka_), kd(kd_), ks(ks_), shininess(shininess_),
+              reflectivity(reflectivity_), specular(specular_),
+              a(a_), b(b_), c(c_){}
 
         Material(float a_, float b_, float c_): a(a_), b(b_), c(c_) {}
         float ka;

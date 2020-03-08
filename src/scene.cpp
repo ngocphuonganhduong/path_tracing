@@ -78,9 +78,6 @@ namespace pathtracing {
 
         //BIDIRECTIONAL PATHTRACING
         //LOOP over all objects which is light
-        if (debug && debug_ray)
-            std::cout << "BIDIRECTIONAL pathtracing\n";
-
         for(unsigned i = 0; i < objects.size(); ++i)
         {
             //To be a light, an object must have emissive radiance
@@ -116,24 +113,23 @@ namespace pathtracing {
             else
                 return rad;
         }
-        //ROUSSIAN ROULETTE to decide with types of reflectance
-        //
-        //double max_r = mat->kd + mat->ks;
-        //double rnd = max_r * rand1();
-        //if (rnd < mat->kd)
-        //{
-        Vector3 dir = sample_diffuse(hit_data.normal);
-        Ray r_ray(hit_data.point, dir);
-        rad += obj_c * get_radiance(r_ray, niter + 1) * mat->kd;// * mat->kd / max_r;
-            //}
-//        else
-            //      {
-            //TODO
-            //Vector3 dir = sample_specular(hit_data.normal);
 
-            //Ray r_ray(hit_data.point, dir);
-            //rad += get_radiance(r_ray, niter + 1) * mat->kd * mat->kd / max_r;
-            // }
+        //ROUSSIAN ROULETTE to decide with types of reflectance
+        //TODO : SPECULAR, GLOSSY
+        double max_r = mat->kd + mat->reflectivity;
+        double rnd = max_r * rand1();
+        if (rnd < mat->kd) //DIFFUSE REFLECTANCE
+        {
+            Vector3 dir = sample_diffuse(hit_data.normal);
+            Ray r_ray(hit_data.point, dir);
+            rad += obj_c * get_radiance(r_ray, niter + 1) * mat->kd * mat->kd / max_r;
+        }
+        else //REFLECTIVE REFLECTANCE
+        {
+            Vector3 dir = ray.get_direction().reflect(hit_data.normal);
+            Ray reflected_ray(hit_data.point, dir);
+            rad += get_radiance(reflected_ray, niter + 1) * mat->reflectivity * mat->reflectivity / max_r;
+        }
         return rad;
     }
 
