@@ -10,14 +10,15 @@ int main(int argc, char **argv) {
     unsigned y = 0;
     for (int i = 1; i < argc; ++i)
     {
-        if (strcmp(argv[i], "--debug") == 0) {
+        if (strcmp(argv[i], "--debug") == 0 || strcmp(argv[i], "-d") == 0) {
             debug = true;
         }
         else if (strcmp(argv[i], "-ns") == 0){
             ++i;
             nb_samples = std::atoi(argv[i]);
         }
-        else if (debug && strcmp(argv[i], "--ray") == 0)
+        else if (debug && (strcmp(argv[i], "--ray") == 0
+                           || strcmp(argv[i], "-r") == 0))
         {
             debug_ray = true;
             x = std::atoi(argv[i + 1]);
