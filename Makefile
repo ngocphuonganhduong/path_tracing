@@ -48,6 +48,9 @@ all: build
 build: $(OBJ_FILES)
 	$(CC)  $(SRC_DIR)/main.cpp -o $(BIN) $(OBJ_FILES) $(CXX_FLAGS)
 
+scene1: $(OBJ_FILES)
+	$(CC)  $(SRC_DIR)/test_scene1.cpp -o $(BIN) $(OBJ_FILES) $(CXX_FLAGS)
+
 .PHONY: all clean build
 
 clean:

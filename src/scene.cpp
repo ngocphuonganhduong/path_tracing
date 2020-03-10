@@ -95,7 +95,7 @@ namespace pathtracing {
                     tem.obj_id == i)
                 {
                     rad += objects[i]->get_emitted_at(mat, obj->texture,
-                                                      hit_data, cam.pos - hit_data.point,
+                                                      hit_data, hit_data.point - cam.pos,
                                                       dir);
                     if (debug && debug_ray)
                     {
@@ -114,22 +114,29 @@ namespace pathtracing {
                 return rad;
         }
 
-        //ROUSSIAN ROULETTE to decide with types of reflectance
-        //TODO : SPECULAR, GLOSSY
-        double max_r = mat->kd + mat->reflectivity;
-        double rnd = max_r * rand1();
-        if (rnd < mat->kd) //DIFFUSE REFLECTANCE
+        if (mat->reflectivity > 0)
         {
-            Vector3 dir = sample_diffuse(hit_data.normal);
-            Ray r_ray(hit_data.point, dir);
-            rad += obj_c * get_radiance(r_ray, niter + 1) * mat->kd * mat->kd / max_r;
+            //ROUSSIAN ROULETTE to decide with types of reflectance
+            //3 types of reflectance: DIFFUSE, SPECULAR, GLOSSY
+            double max_r = mat->kd + mat->ks;
+            double rnd = max_r * rand1();
+            Vector3 r_rad; //reflected radiance
+
+            if (rnd < mat->kd) //DIFFUSE REFLECTANCE
+            {
+                Vector3 dir = sample_diffuse(hit_data.normal);
+                Ray r_ray(hit_data.point, dir);
+                r_rad = obj_c * get_radiance(r_ray, niter + 1) * mat->kd / max_r;
+            }
+            else //REFLECTIVE REFLECTANCE
+            {
+                Vector3 dir = ray.get_direction().reflect(hit_data.normal);
+                Ray reflected_ray(hit_data.point, dir);
+                r_rad = get_radiance(reflected_ray, niter + 1) * mat->ks / max_r;
+            }
+            rad += r_rad * mat->reflectivity;
         }
-        else //REFLECTIVE REFLECTANCE
-        {
-            Vector3 dir = ray.get_direction().reflect(hit_data.normal);
-            Ray reflected_ray(hit_data.point, dir);
-            rad += get_radiance(reflected_ray, niter + 1) * mat->reflectivity * mat->reflectivity / max_r;
-        }
+        //TODO: transmit
         return rad;
     }
 
