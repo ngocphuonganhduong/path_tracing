@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     float kd = 0.9; //diffuse coef
     float r = 1; //reflectivity
     //MATERIAL
-    shared_mat mat1 = std::make_shared<Material>(ka, kd, ks, s, 0.3,
+    shared_mat mat1 = std::make_shared<Material>(ka, kd, ks, s, r,
                                                   Vector3(1,1,1));
     shared_mat mat3 = std::make_shared<Material>(ka, kd, ks, s, 0.3,
                                                  Vector3(1,1,1));
@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
                                              sp_med);
 
     //LIGHT OBJECT//Vector3(0,12,3.75)
-    shared_obj o2 = std::make_shared<Object>(Vector3(0, 10, -2.5), Vector3(0.9,0.9,0.9),
+    shared_obj o2 = std::make_shared<Object>(Vector3(0.5, 8, -2), Vector3(0.9,0.9,0.9),
                                              mat2, white, sp_small); //light source
     shared_obj o3 = std::make_shared<Object>(Vector3(2,10,-3), pink,
                                              mat4, pink, sp_small); //light source

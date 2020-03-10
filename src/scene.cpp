@@ -126,15 +126,15 @@ namespace pathtracing {
             {
                 Vector3 dir = sample_diffuse(hit_data.normal);
                 Ray r_ray(hit_data.point, dir);
-                r_rad = obj_c * get_radiance(r_ray, niter + 1) * mat->kd / max_r;
+                r_rad = get_radiance(r_ray, niter + 1);
             }
             else //REFLECTIVE REFLECTANCE
             {
                 Vector3 dir = ray.get_direction().reflect(hit_data.normal);
                 Ray reflected_ray(hit_data.point, dir);
-                r_rad = get_radiance(reflected_ray, niter + 1) * mat->ks / max_r;
+                r_rad = get_radiance(reflected_ray, niter + 1);
             }
-            rad += r_rad * mat->reflectivity;
+            rad += obj_c * r_rad * mat->reflectivity;
         }
         //TODO: transmit
         return rad;
