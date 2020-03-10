@@ -74,8 +74,12 @@ namespace pathtracing {
         shared_obj obj = objects[hit_data.obj_id];
         shared_mat mat = obj->material;
         Vector3 obj_c = obj->texture->get_color(hit_data.point);
-        Vector3 rad = this->ambient_light * mat->ka + obj->emitted_rad;
+        Vector3 rad = this->ambient_light * mat->ka;
+        if (niter == 0) //avoid double count light source
+        {
+            rad +=  obj->emitted_rad;
 
+        }
         //BIDIRECTIONAL PATHTRACING
         //LOOP over all objects which is light
         for(unsigned i = 0; i < objects.size(); ++i)

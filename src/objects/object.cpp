@@ -50,11 +50,15 @@ namespace pathtracing {
                                                          + material->c);
                 color += diffuse_c * ld * mat->kd * attenuation;
             }
+            if (debug && debug_ray)
+                std::cout << "light after diffuse: " << color << "\n";
             //SPECULAR LIGHT
             Vector3 r = dir.reflect(hit_data.normal); //reflected vector
             float ls = cam_to_hit.dot(r) / (cam_to_hit.norm() * r.norm());
             if (ls > 0)
                 color += mat->specular * pow(ls, mat->shininess) * mat->ks;
+            if (debug && debug_ray)
+                std::cout << "light after specular: " << color << "\n";
         }
         if (debug && debug_ray)
             std::cout << "light * emitted_rad:" << color
