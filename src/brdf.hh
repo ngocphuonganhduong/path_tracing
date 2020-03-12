@@ -5,6 +5,7 @@
 namespace pathtracing {
     Vector3 sample_diffuse(const Vector3& normal);
 
+    Vector3 sample_specular(const Vector3& normal, float n);
 }
 
 #endif /* BRDF_HH */

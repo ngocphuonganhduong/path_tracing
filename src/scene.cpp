@@ -134,7 +134,10 @@ namespace pathtracing {
             }
             else //REFLECTIVE REFLECTANCE
             {
-                Vector3 dir = ray.get_direction().reflect(hit_data.normal);
+                //specular:
+                //Vector3 dir = ray.get_direction().reflect(hit_data.normal);
+                //specular + glossy:
+                Vector3 dir = sample_specular(hit_data.normal, mat->shininess);
                 Ray reflected_ray(hit_data.point, dir);
                 r_rad = get_radiance(reflected_ray, niter + 1);
             }
