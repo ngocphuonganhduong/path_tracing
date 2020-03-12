@@ -56,23 +56,20 @@ int main(int argc, char **argv) {
                                                   half_l);
 
     //MATERIAL
-    float s = 32; //shininess;
-    float ka = 1; //ambient coef
-    float ks = 0.7; //specular coef
-    float kd = 0.7; //diffuse coef
-    float r = 1; //reflectivity
+    float ns = 32; //shininess;
+    Vector3 ka(0.1, 0.1, 0.1); //ambient coef
+    Vector3 ks(1,1,1); //specular coef
+    Vector3 kd(0.8, 0.8, 0.8); //diffuse coef
+
     //MATERIAL
-    shared_mat mat1 = std::make_shared<Material>(ka, kd, ks, s, r,
-                                                  Vector3(1,1,1));
-    shared_mat mat3 = std::make_shared<Material>(ka, kd, ks, s, 0.3,
-                                                 Vector3(1,1,1));
+    shared_mat mat1 = std::make_shared<Material>(ka, kd, ks, ns);
+
+    shared_mat mat3 = std::make_shared<Material>(ka, kd, ks, ns);
 
 
     //MATERIAL for light object
-    shared_mat mat2 = std::make_shared<Material>(0, 0.3, 1);
-    shared_mat mat4 = std::make_shared<Material>(ka, kd, ks, s, 0,
-                                                 Vector3(1,1,1),
-                                                 0.1, 0.2, 1);
+    shared_mat mat2 = std::make_shared<Material>(ka, kd, ks, ns);
+    shared_mat mat4 = std::make_shared<Material>(ka, kd, ks, ns, 0.1, 0.2, 1);
 
     //OBJECT
     shared_obj o1 = std::make_shared<Object>(Vector3(-1.5,13,-3), mat1, red,

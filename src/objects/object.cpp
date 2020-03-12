@@ -43,7 +43,7 @@ namespace pathtracing {
         if (ld > 0)
         {
             //DIFFUSE LIGHT
-            if (mat->kd > 0)
+            if (mat->kd.max() > 0)
             {
                 Vector3 diffuse_c = text->get_color(hit_data.point);
                 float attenuation = 1.0 / (material->a * d * d + material->b * d
@@ -52,14 +52,18 @@ namespace pathtracing {
             }
             if (debug && debug_ray)
                 std::cout << "light after diffuse: " << color << "\n";
+
             //SPECULAR LIGHT
             Vector3 r = dir.reflect(hit_data.normal); //reflected vector
             float ls = cam_to_hit.dot(r) / (cam_to_hit.norm() * r.norm());
+
             if (ls > 0)
-                color += mat->specular * pow(ls, mat->shininess) * mat->ks;
+                color += mat->ks * pow(ls, mat->ns);
+
             if (debug && debug_ray)
                 std::cout << "light after specular: " << color << "\n";
         }
+
         if (debug && debug_ray)
             std::cout << "light * emitted_rad:" << color
                       << this->emitted_rad <<"\n";

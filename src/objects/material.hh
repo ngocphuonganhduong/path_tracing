@@ -7,24 +7,20 @@
 namespace pathtracing {
     class Material {
     public:
-        Material(float ka_, float kd_, float ks_, float shininess_,
-                 float reflectivity_, const Vector3& specular_)
-            : ka(ka_), kd(kd_), ks(ks_), shininess(shininess_),
-              reflectivity(reflectivity_), specular(specular_) {}
-        Material(float ka_, float kd_, float ks_, float shininess_,
-                 float reflectivity_, const Vector3& specular_,
-                 float a_, float b_, float c_)
-            : ka(ka_), kd(kd_), ks(ks_), shininess(shininess_),
-              reflectivity(reflectivity_), specular(specular_),
+        Material(const Vector3& ka_, const Vector3& kd_, const Vector3& ks_,
+                 float ns_)
+            : ka(ka_), kd(kd_), ks(ks_), ns(ns_) {}
+
+        Material(const Vector3& ka_, const Vector3& kd_, const Vector3& ks_,
+                 float ns_, float a_, float b_, float c_)
+            : ka(ka_), kd(kd_), ks(ks_), ns(ns_),
               a(a_), b(b_), c(c_){}
 
         Material(float a_, float b_, float c_): a(a_), b(b_), c(c_) {}
-        float ka;
-        float kd;
-        float ks;
-        float shininess;
-        float reflectivity;
-        Vector3 specular;
+        Vector3 ka;
+        Vector3 kd;
+        Vector3 ks;
+        float ns; //shininess
 
         //Control the intensity of diffuse = 1.0/f(distance);
         //f(d) = a*distance*distance + b*distance + c

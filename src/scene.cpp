@@ -118,30 +118,27 @@ namespace pathtracing {
                 return rad;
         }
 
-        if (mat->reflectivity > 0)
-        {
-            //ROUSSIAN ROULETTE to decide with types of reflectance
-            //3 types of reflectance: DIFFUSE, SPECULAR, GLOSSY
-            double max_r = mat->kd + mat->ks;
-            double rnd = max_r * rand1();
-            Vector3 r_rad; //reflected radiance
+        //ROUSSIAN ROULETTE to decide with types of reflectance
+        //3 types of reflectance: DIFFUSE, SPECULAR, GLOSSY
+        double pd = (mat->kd.x + mat->kd.y + mat->kd.z)/3;
+        double ps = (mat->ks.x + mat->ks.y + mat->ks.z)/3;
+        double rnd = rand1();
 
-            if (rnd < mat->kd) //DIFFUSE REFLECTANCE
-            {
-                Vector3 dir = sample_diffuse(hit_data.normal);
-                Ray r_ray(hit_data.point, dir);
-                r_rad = get_radiance(r_ray, niter + 1);
-            }
-            else //REFLECTIVE REFLECTANCE
-            {
-                //specular:
-                //Vector3 dir = ray.get_direction().reflect(hit_data.normal);
-                //specular + glossy:
-                Vector3 dir = sample_specular(hit_data.normal, mat->shininess);
-                Ray reflected_ray(hit_data.point, dir);
-                r_rad = get_radiance(reflected_ray, niter + 1);
-            }
-            rad += obj_c * r_rad * mat->reflectivity;
+        double k = ps / (pd + ps);
+        if (rnd < pd) //DIFFUSE REFLECTANCE
+        {
+            Vector3 dir = sample_diffuse(hit_data.normal);
+            Ray r_ray(hit_data.point, dir);
+            rad += get_radiance(r_ray, niter + 1) * obj_c * mat->kd;// * (rnd - k) / (1 - k);
+        }
+        else if (rnd < pd + ps) //SPECULAR/GLOSSY REFLECTANCE
+        {
+            //specular:
+            //Vector3 dir = ray.get_direction().reflect(hit_data.normal);
+            //specular + glossy:
+            Vector3 dir = sample_specular(hit_data.normal, mat->ns);
+            Ray reflected_ray(hit_data.point, dir);
+            rad += get_radiance(reflected_ray, niter + 1) * obj_c * mat->ks;// * rnd/k;
         }
         //TODO: transmit
         return rad;
