@@ -8,12 +8,12 @@ namespace pathtracing {
     class Material {
     public:
         Material(const Vector3& ka_, const Vector3& kd_, const Vector3& ks_,
-                 float ns_)
-            : ka(ka_), kd(kd_), ks(ks_), ns(ns_) {}
+                 float ns_, float kr_, float ksm_)
+            : ka(ka_), kd(kd_), ks(ks_), ns(ns_), kr(kr_), ksm(ksm_) {}
 
         Material(const Vector3& ka_, const Vector3& kd_, const Vector3& ks_,
-                 float ns_, float a_, float b_, float c_)
-            : ka(ka_), kd(kd_), ks(ks_), ns(ns_),
+                 float ns_, float kr_, float ksm_, float a_, float b_, float c_)
+            : ka(ka_), kd(kd_), ks(ks_), ns(ns_), kr(kr_), ksm(ksm_),
               a(a_), b(b_), c(c_){}
 
         Material(float a_, float b_, float c_): a(a_), b(b_), c(c_) {}
@@ -21,6 +21,8 @@ namespace pathtracing {
         Vector3 kd;
         Vector3 ks;
         float ns; //shininess
+        float kr; //reflectivity coef
+        float ksm; //smoothness [0, 1] from blur to clear effect
 
         //Control the intensity of diffuse = 1.0/f(distance);
         //f(d) = a*distance*distance + b*distance + c

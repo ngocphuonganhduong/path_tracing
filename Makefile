@@ -12,10 +12,13 @@ PATHTRACER_FILES = $(SRC_DIR)/utils/vector3.cpp \
 		$(SRC_DIR)/brdf.cpp \
 		$(SRC_DIR)/scene.cpp \
 		$(SRC_DIR)/pathtracer.cpp \
+		$(SRC_DIR)/light_path.cpp \
+		$(SRC_DIR)/radiance.cpp \
 
 
 PATHTRACER_H_FILES = $(SRC_DIR)/utils/vector3.hh \
 		$(SRC_DIR)/utils/ray.hh\
+		$(SRC_DIR)/utils/vertex.hh\
 		$(SRC_DIR)/objects/texture.hh\
 		$(SRC_DIR)/objects/models/model.hh\
 		$(SRC_DIR)/objects/material.hh\
@@ -32,7 +35,7 @@ H_FILES = $(RAYTRACER_H_FILES) $(PATHTRACER_H_FILES)
 OBJ_FILES = $(CPP_FILES:.cpp=.o)
 
 
-CXX_FLAGS += -Wall -Wextra -O3 -g -std=c++11 -pthread -faligned-new \
+CXX_FLAGS += -Wall -Wextra -O3 -g -std=c++17 -pthread -faligned-new \
 		-fsanitize=address	\
 		-I$(SRC_DIR)
 
@@ -40,8 +43,8 @@ CXX_FLAGS += -lm
 
 BIN = main
 
-%.o: %.c $(H_FILES)
-	$(CC) -c -o $@ $< $(CFLAGS)
+%.o: %.cpp $(H_FILES)
+	$(CC) $(CXX_FLAGS) -c -o $@ $< $(CFLAGS)
 
 all: build
 

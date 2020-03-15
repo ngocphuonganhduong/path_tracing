@@ -28,7 +28,9 @@ namespace pathtracing {
         double dot(const Vector3& v) const;
         Vector3 cross(const Vector3& c) const;
         Vector3 reflect(const Vector3& normal) const;
+        void clamp(double min, double max);
         void set_values(double x, double y, double z);
+        double avg() const;
         double norm() const;
         double norm_square() const;
         double max() const;

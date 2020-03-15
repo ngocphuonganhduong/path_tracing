@@ -8,7 +8,9 @@ namespace pathtracing {
     bool debug = false;
     bool debug_ray = false;
 
-    Pathtracer::Pathtracer(Scene& scene_, unsigned int n_samples)
+    Pathtracer::Pathtracer(Scene& scene_, unsigned int n_samples,
+                           int max_dl_bounce_,
+                           int max_idl_bounce_)
         : scene(scene_)
     {
         s_size = sqrt(n_samples); // n_sam = s_size x s_size
@@ -16,10 +18,16 @@ namespace pathtracing {
         area_size = 1.0 / double(s_size);
 
         pixels = new uint8_t[scene_.width * scene_.height * 3];
+        max_dl_bounce = max_dl_bounce_;
+        max_idl_bounce = max_idl_bounce_;
+        terminate_param = 0;
+        max_intensity = 0.9;
     }
+
     Pathtracer::~Pathtracer() {
         delete [] pixels;
     }
+
     void Pathtracer::set_values(int x, int y, const Vector3& color) {
         int i = (x + y * scene.width) * 3;
         pixels[i] = round(std::min(color.x, 1.0) * 255.0);
@@ -27,11 +35,6 @@ namespace pathtracing {
         pixels[i + 2] = round(std::min(color.z, 1.0) * 255.0);
     }
 
-    Vector3 Pathtracer::trace(double x, double y)
-    {
-        Ray ray = scene.init_ray(x,y);
-        return scene.get_radiance(ray, 0);
-    }
 
     void Pathtracer::render_y(int thread_id, int starty, int endy)
     {

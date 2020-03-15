@@ -21,24 +21,21 @@ namespace pathtracing {
     //SCENE
     class Scene {
     public:
-        Scene(int width, int height, Camera cam, int max_niter,
-              const Vector3& ambient);
+        Scene(int width, int height, Camera cam, const Vector3& ambient);
         void add_object(shared_obj obj);
 
         Ray init_ray(float x, float y);
         bool find_intersection(const Ray& ray, HitRecord &hit_point) const;
 
-        Vector3 get_radiance(const Ray& ray, int niter);
         ~Scene(){};
         std::vector<shared_obj> objects;
 
         int width;
         int height;
         Camera cam;
-    private:
-        int max_niter; //max number of bounces
-        Vector3 mid;
         Vector3 ambient_light;
+    private:
+        Vector3 mid;
     };
 }
 

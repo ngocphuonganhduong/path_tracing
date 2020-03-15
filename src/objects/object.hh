@@ -1,12 +1,15 @@
 #ifndef OBJECT_HH
 #define OBJECT_HH
+
 #include "material.hh"
 #include "texture.hh"
 #include "models/model.hh"
-
+#include "../utils/ray.hh"
+#include "../utils/vertex.hh"
 
 namespace pathtracing {
     class Object {
+        using shared_objs = std::vector<std::shared_ptr<Object>>;
     public:
         Object(const Vector3& position, const Vector3& emitted_rad,
                shared_mat mat, shared_text text, shared_mod model);
@@ -20,12 +23,21 @@ namespace pathtracing {
                shared_mod model);
 
         bool hit(const Ray&, HitRecord& hit_data) const;
+        Vector3 get_color_from_light_point(shared_objs objects,
+                                           const Vertex& light_point,
+                                           const HitRecord& data,
+                                           const Vector3& cam_dir);
+
         Vector3 get_emitted_at(shared_mat mat, shared_text text,
                                const HitRecord& hit_data,
                                const Vector3& cam_to_hit,
                                const Vector3& p_to_light);
 
         Vector3 get_sample() const;
+        Ray sample_light_ray(float& pdf) const;
+        double get_attenuation(double distance) const;
+
+
         Vector3 position; //world position
         Vector3 emitted_rad;
         shared_mat material;

@@ -5,10 +5,9 @@ namespace pathtracing {
     TriangleMesh::TriangleMesh(TriVector& triangles_, const Vector3& scale_)
         : scale(scale_), triangles(triangles_) {}
 
-    Vector3 TriangleMesh::get_sample(const Vector3& pos) const {
+    Vector3 TriangleMesh::get_sample(const Vector3&) const {
         return triangles[round(drand48() * (triangles.size() - 1))].p[0];
     }
-
     bool TriangleMesh::hit (const Vector3& pos, const Ray& r,
                             HitRecord& hit_data, const Triangle& tri) const
     {

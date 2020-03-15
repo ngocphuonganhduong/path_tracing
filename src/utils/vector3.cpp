@@ -1,4 +1,5 @@
 #include <iomanip>
+#include <algorithm>
 #include "vector3.hh"
 
 namespace pathtracing {
@@ -86,8 +87,16 @@ namespace pathtracing {
     {
         return *this - normal * normal.dot(*this) * 2.0;
     }
+    double Vector3::avg() const {
+        return (x + y + z) / 3;
+    }
     double rand1() {
         return double(rand()) / (double(RAND_MAX) + 1.0);
+    }
+    void Vector3::clamp(double min, double max) {
+        x = std::clamp(x, min, max);
+        y = std::clamp(y, min, max);
+        z = std::clamp(z, min, max);
     }
 
 }

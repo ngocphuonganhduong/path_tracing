@@ -18,7 +18,6 @@ namespace pathtracing {
     struct HitRecord {
         unsigned int obj_id;
         Vector3 point;
-//        Vector3 direction; //from camera to hit point
         Vector3 normal;
     };
 

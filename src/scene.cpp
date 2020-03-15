@@ -20,10 +20,8 @@ namespace pathtracing {
     }
 
     //SCENE
-    Scene::Scene(int width_, int height_, Camera cam_, int max_niter_,
-                 const Vector3& ambient)
-        : width(width_), height(height_), cam(cam_), max_niter(max_niter_),
-          ambient_light(ambient)
+    Scene::Scene(int width_, int height_, Camera cam_, const Vector3& ambient)
+        : width(width_), height(height_), cam(cam_), ambient_light(ambient)
     {
         cam.right *= float(width)/float(height);
         this->mid = cam.pos + cam.forward / float(tan(cam.fov * M_PI/360));
@@ -59,89 +57,4 @@ namespace pathtracing {
 
         return min_distance < INFINITY;
     }
-
-    Vector3 Scene::get_radiance(const Ray& ray, int niter){
-        HitRecord hit_data;
-        if (!this->find_intersection(ray, hit_data))
-            return Vector3(0,0,0);
-
-        if (debug && debug_ray)
-            std::cout << ray << "GET_RAD: obj_id: "<< hit_data.obj_id << "\n";
-
-        if (hit_data.normal.dot(ray.get_direction()) > 0)
-            hit_data.normal *= -1;
-
-        shared_obj obj = objects[hit_data.obj_id];
-        shared_mat mat = obj->material;
-        Vector3 obj_c = obj->texture->get_color(hit_data.point);
-        Vector3 rad = this->ambient_light * mat->ka;
-        if (niter == 0) //avoid double count light source
-        {
-            rad +=  obj->emitted_rad;
-
-        }
-        //BIDIRECTIONAL PATHTRACING
-        //LOOP over all objects which is light
-        for(unsigned i = 0; i < objects.size(); ++i)
-        {
-            //To be a light, an object must have emissive radiance
-            if (objects[i]->emitted_rad.max() > 0)
-            {
-                //Ray from hit point to light
-                Vector3 dir = objects[i]->get_sample() - hit_data.point;
-                Ray sray(hit_data.point + dir * 0.0001, dir);
-                if (debug && debug_ray)
-                    std::cout << "Detect light object"<< sray << "\n";
-
-                HitRecord tem;
-                //Check if sray is not a shadow ray
-                if (find_intersection(sray, tem) &&
-                    tem.obj_id == i)
-                {
-                    rad += objects[i]->get_emitted_at(mat, obj->texture,
-                                                      hit_data, hit_data.point - cam.pos,
-                                                      dir);
-                    if (debug && debug_ray)
-                    {
-                        std::cout << "Not a shadow ray:" << rad << "\n";
-                    }
-                }
-            }
-        }
-        if (niter > max_niter)
-        {
-            //ROUSSIAN ROULETTE to terminate path
-            double p = obj_c.max();
-            if (rand1() < p)
-                obj_c /= p;
-            else
-                return rad;
-        }
-
-        //ROUSSIAN ROULETTE to decide with types of reflectance
-        //3 types of reflectance: DIFFUSE, SPECULAR, GLOSSY
-        double pd = (mat->kd.x + mat->kd.y + mat->kd.z)/3;
-        double ps = (mat->ks.x + mat->ks.y + mat->ks.z)/3;
-        double rnd = rand1();
-
-        double k = ps / (pd + ps);
-        if (rnd < pd) //DIFFUSE REFLECTANCE
-        {
-            Vector3 dir = sample_diffuse(hit_data.normal);
-            Ray r_ray(hit_data.point, dir);
-            rad += get_radiance(r_ray, niter + 1) * obj_c * mat->kd;// * (rnd - k) / (1 - k);
-        }
-        else if (rnd < pd + ps) //SPECULAR/GLOSSY REFLECTANCE
-        {
-            //specular:
-            //Vector3 dir = ray.get_direction().reflect(hit_data.normal);
-            //specular + glossy:
-            Vector3 dir = sample_specular(hit_data.normal, mat->ns);
-            Ray reflected_ray(hit_data.point, dir);
-            rad += get_radiance(reflected_ray, niter + 1) * obj_c * mat->ks;// * rnd/k;
-        }
-        //TODO: transmit
-        return rad;
-    }
-
 }
