@@ -8,13 +8,16 @@ namespace pathtracing {
     extern bool debug_ray;
     class Pathtracer {
     public:
-        Pathtracer(Scene& scene, unsigned int n_sam,
-                   int max_dl_bounce_, int max_idl_bounce_);
+        Pathtracer(Scene& scene);
 
         ~Pathtracer();
         void render ();
-        bool to_ppm(const char* filename);
+        bool to_ppm(const std::string& filename);
         Vector3 trace(double x, double y);
+        void set_nb_samples(unsigned int ns);
+        int max_dl_bounce; //max nb of direct light bounces
+        int max_idl_bounce; //max nb of indirect light bounces
+        std::string filename;
 
     private:
         void set_values(int x, int y, const Vector3& color);
@@ -31,15 +34,12 @@ namespace pathtracing {
         Vector3 get_direct_light_radiance(Vertices light_path,
                                           const HitRecord& hit_data,
                                           const Vector3 dir);
-        Vector3 get_radiance(const Ray& ray, int niter, Vertices light_path);
-
+        Vector3 get_radiance(float x, float y, int niter, Vertices light_path);
         Scene scene;
         unsigned int n_sam; //nb of samples per ray
         unsigned int s_size; // n_sam = s_size x s_size
         double area_size; // edge size of the area containing a sample;
                           //area_size x area_size
-        int max_dl_bounce; //max nb of direct light bounces
-        int max_idl_bounce; //max nb of indirect light bounces
         double terminate_param; // (0, 1.0)
         double max_intensity; // clamp the intensity of the light each bounce
         uint8_t *pixels;

@@ -14,6 +14,7 @@ PATHTRACER_FILES = $(SRC_DIR)/utils/vector3.cpp \
 		$(SRC_DIR)/pathtracer.cpp \
 		$(SRC_DIR)/light_path.cpp \
 		$(SRC_DIR)/radiance.cpp \
+		$(SRC_DIR)/parser/parse_arg.cpp
 
 
 PATHTRACER_H_FILES = $(SRC_DIR)/utils/vector3.hh \

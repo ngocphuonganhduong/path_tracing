@@ -8,24 +8,30 @@ namespace pathtracing {
     bool debug = false;
     bool debug_ray = false;
 
-    Pathtracer::Pathtracer(Scene& scene_, unsigned int n_samples,
-                           int max_dl_bounce_,
-                           int max_idl_bounce_)
+    Pathtracer::Pathtracer(Scene& scene_)
         : scene(scene_)
     {
-        s_size = sqrt(n_samples); // n_sam = s_size x s_size
-        n_sam = s_size * s_size; // only subdivide pixel into square regions;
-        area_size = 1.0 / double(s_size);
+        s_size = 2; // n_sam = s_size x s_size
+        n_sam = 4; // only subdivide pixel into square regions;
+        area_size = 1.0 / 4.0;
 
         pixels = new uint8_t[scene_.width * scene_.height * 3];
-        max_dl_bounce = max_dl_bounce_;
-        max_idl_bounce = max_idl_bounce_;
-        terminate_param = 0;
+        max_dl_bounce = 2;
+        max_idl_bounce = 5;
+        terminate_param = 0.5;
         max_intensity = 0.9;
+        filename = "output.ppm";
     }
 
     Pathtracer::~Pathtracer() {
         delete [] pixels;
+    }
+
+    void Pathtracer::set_nb_samples(unsigned int ns)
+    {
+        s_size = sqrt(ns); // n_sam = s_size x s_size
+        n_sam = s_size * s_size; // only subdivide pixel into square regions;
+        area_size = 1.0 / double(s_size);
     }
 
     void Pathtracer::set_values(int x, int y, const Vector3& color) {
@@ -72,7 +78,7 @@ namespace pathtracing {
             threads[i].join();
     }
 
-    bool Pathtracer::to_ppm(const char* filename){
+    bool Pathtracer::to_ppm(const std::string& filename){
         std::ofstream ofs (filename, std::ofstream::out);
         if (!ofs.good()) {
             std::cerr << "ERROR: cannot open " << filename << " for writing"

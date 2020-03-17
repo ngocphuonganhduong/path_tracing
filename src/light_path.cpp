@@ -65,16 +65,15 @@ namespace pathtracing {
         Vertices vertices;
         for (unsigned int i = 0; i < scene.objects.size(); ++i)
         {
-            shared_obj o = scene.objects[i];
-            if (o->emitted_rad.max() > 0)
+            if (scene.objects[i]->emitted_rad.max() > 0)
             {
-                Ray sample_l = o->sample_light_ray(pdf);
+                Ray sample_l = scene.objects[i]->sample_light_ray(pdf);
                 Vertex v(sample_l.get_origin(), i,
-                         o->emitted_rad);
+                         scene.objects[i]->emitted_rad);
                 vertices.push_back(v);
 
                 trace_light(vertices, v, sample_l, 1,
-                            o->material->kr);
+                            scene.objects[i]->material->kr);
             }
         }
         return vertices;
@@ -82,12 +81,11 @@ namespace pathtracing {
 
     Vector3 Pathtracer::trace(double x, double y)
     {
-        Ray ray = scene.init_ray(x,y); //ray from camera
         Vertices light_path;
         if (max_dl_bounce > 0)
             light_path = generate_light_path();
         if (debug && debug_ray)
             std::cout << "nb of light vertices: " << light_path.size() << "\n";
-        return get_radiance(ray, 0, light_path);
+        return get_radiance(x, y, 0, light_path);
     }
 }

@@ -1,5 +1,4 @@
-#include "pathtracer.hh"
-#include <cstring>
+#include "parser/parser.hh"
 
 using namespace pathtracing;
 
@@ -19,6 +18,7 @@ int main(int argc, char **argv) {
     //MODEL
     shared_mod sp_small = std::make_shared<Sphere>(0.4);
     shared_mod sp_med = std::make_shared<Sphere>(1.0);
+    shared_mod sp_l = std::make_shared<Sphere>(1.4);
     TriVector tv;
     shared_mod trimesh = std::make_shared<TriangleMesh>(tv, Vector3(1,1,1));
 
@@ -37,18 +37,16 @@ int main(int argc, char **argv) {
     float ns = 32; //shininess;
     Vector3 ka(0.1, 0.1, 0.1); //ambient coef
     Vector3 ks(1,1,1); //specular coef
-    Vector3 kd(0.8, 0.8, 0.8); //diffuse coef
-    float kr = 0.5; //reflectivity coef
-    float ksm = 0.5; //smoothness of specular
+    Vector3 kd(0.3, 0.3, 0.3); //diffuse coef
 
     //OBJECT
     //Ka, kd, ks, ns, kr, smoothness/ksm
-    shared_mat mat1 = std::make_shared<Material>(ka, kd, ks, ns, 1, 0);
+    shared_mat mat1 = std::make_shared<Material>(ka, kd, ks, ns, 1, 0.2);
     shared_obj o1 = std::make_shared<Object>(Vector3(-2,11.5,-3), mat1, red,
                                              sp_med);
-    shared_mat mat2 = std::make_shared<Material>(ka, kd, ks, ns, 1, 1);
-    shared_obj o2 = std::make_shared<Object>(Vector3(2, 13, -3), mat2, green,
-                                             sp_med);
+    shared_mat mat2 = std::make_shared<Material>(ka, kd, ks, ns, 1, 0.2);
+    shared_obj o2 = std::make_shared<Object>(Vector3(2, 13, -2.5), mat2, green,
+                                             sp_l);
 
     //LIGHT OBJECT
     shared_mat mat3 = std::make_shared<Material>(ka, Vector3(0.4,0.4,0.4),
@@ -69,7 +67,7 @@ int main(int argc, char **argv) {
                                                         - half_l),
                                                 mat_f, blue_white, tb_wallm);
 
-    shared_mat mat_w = std::make_shared<Material>(ka, kd, Vector3(0.2, 0.2, 0.2), ns, 0.2, 1);
+    shared_mat mat_w = std::make_shared<Material>(ka, white, Vector3(0.2, 0.2, 0.2), ns, 0.2, 1);
     shared_obj roof = std::make_shared<Object>(Vector3(0, distance - half_l, half_l),
                                                mat_w, blue, tb_wallm);
     shared_obj front_w = std::make_shared<Object>(Vector3(0, distance,0),
@@ -90,50 +88,19 @@ int main(int argc, char **argv) {
     scene.add_object(left_w);
     scene.add_object(right_w);
 
-    unsigned int mdlb = 0; //max nb of direct light bounce
-    unsigned int midlb = 1;//max nb of indirect light bounce
-
-    unsigned int nb_samples = 4;
     //Debug ray declaration
-    unsigned x = 0;
-    unsigned y = 0;
-    for (int i = 1; i < argc; ++i)
-    {
-        if (strcmp(argv[i], "--debug") == 0 || strcmp(argv[i], "-d") == 0) {
-            debug = true;
-        }
-        else if (strcmp(argv[i], "-ns") == 0){
-            ++i;
-            nb_samples = std::atoi(argv[i]);
-        }
-        else if (debug && (strcmp(argv[i], "--ray") == 0
-                           || strcmp(argv[i], "-r") == 0))
-        {
-            debug_ray = true;
-            x = std::atoi(argv[i + 1]);
-            y = std::atoi(argv[i + 2]);
-            i += 2;
-        }
-        else if (strcmp(argv[i], "--indirect") == 0) //nb of indirect bounces
-        {
-            i += 1;
-            midlb = std::atoi(argv[i]);
-        }
-        else if (strcmp(argv[i], "--direct") == 0) //nb of indirect bounces
-        {
-            i += 1;
-            mdlb = std::atoi(argv[i]);
-        }
-    }
-
-    Pathtracer pt(scene, nb_samples, mdlb, midlb);
+    int x = 0;
+    int y = 0;
+    Pathtracer pt(scene);
+    parse_arguments(pt, argc, argv, x, y);
     if (debug_ray)
     {
         std::cout << pt.trace(x, y) << "\n";
     }
     else {
         pt.render();
-        pt.to_ppm("output.ppm");
+        pt.to_ppm(pt.filename);
     }
+
     return 0;
 }

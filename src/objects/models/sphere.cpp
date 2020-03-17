@@ -17,9 +17,10 @@ namespace pathtracing {
         //( t*t* u*u + 2*t*u*l + l*l - r*r)
         float a = r.get_direction().dot(r.get_direction());
         float b = 2 * l.dot( r.get_direction());
-        float c = l.dot(l) - this->radius * this->radius;
 
-        float discriminant = (b * b) - (a  * c * 4);
+        float discriminant = (b * b) - (a * (l.dot(l) -
+                                             this->radius *
+                                             this->radius) * 4);
 
         if (discriminant < 0) {
             return false;
@@ -29,7 +30,6 @@ namespace pathtracing {
             return false;
         }
         hit_data.point = r.get_origin() + r.get_direction() * t;
-//        hit_data.direction = hit_data.point - r.get_origin();
         hit_data.normal = hit_data.point - pos;
         hit_data.normal.normalize();
         return true;
