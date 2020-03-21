@@ -41,10 +41,10 @@ int main(int argc, char **argv) {
 
     //OBJECT
     //Ka, kd, ks, ns, kr, smoothness/ksm
-    shared_mat mat1 = std::make_shared<Material>(ka, kd, ks, ns, 1, 0.2);
+    shared_mat mat1 = std::make_shared<Material>(ka, kd, ks, ns, 1, 0);
     shared_obj o1 = std::make_shared<Object>(Vector3(-2,11.5,-3), mat1, red,
                                              sp_med);
-    shared_mat mat2 = std::make_shared<Material>(ka, kd, ks, ns, 1, 0.2);
+    shared_mat mat2 = std::make_shared<Material>(ka, kd, ks, ns, 1, 0);
     shared_obj o2 = std::make_shared<Object>(Vector3(2, 13, -2.5), mat2, green,
                                              sp_l);
 
