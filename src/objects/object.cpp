@@ -2,19 +2,10 @@
 
 namespace pathtracing {
 
-    Object::Object(const Vector3& pos_, const Vector3& e_rad_, shared_mat mat_,
-                   shared_text text_, shared_mod model_)
-        : position(pos_), emitted_rad(e_rad_), material(mat_), texture(text_),
-          model(model_) {}
 
     Object::Object(const Vector3& pos_, shared_mat mat_, shared_text text_,
                    shared_mod model_)
         : position(pos_), material(mat_), texture(text_), model(model_) {}
-
-    Object::Object(const Vector3& pos_, const Vector3& e_rad_, shared_mat mat_,
-           const Vector3& color, shared_mod model_)
-        : position(pos_), emitted_rad(e_rad_), material(mat_),
-          texture(std::make_shared<UniformTexture>(color)), model(model_) {}
 
     Object::Object(const Vector3& pos_, shared_mat mat_, const Vector3& color,
            shared_mod model_)
@@ -33,8 +24,8 @@ namespace pathtracing {
 
     Ray Object::sample_light_ray(float& pdf) const {
         //sample sphere surface
-        double a = 2 * M_PI * rand1();
-        double b = 2 * M_PI * rand1();
+        double a = 2 * M_PI * drand48();
+        double b = 2 * M_PI * drand48();
         Vector3 s(cos(a) * cos(b), cos(a) * sin(b), sin(a));
         pdf = 1.0 / (2.0 * M_PI);
         return Ray(position, s);
@@ -55,13 +46,13 @@ namespace pathtracing {
         dir.normalize();
         float ld = data.normal.dot(dir);
         if (debug && debug_ray)
-            std::cout << "light col " << light_point.col << "\n";
+            std::cout << "light col " << light_point.col << " ld : " << ld << "\n";
 
         Vector3 color;
         if (ld > 0)
         {
             //DIFFUSE LIGHT
-            if (material->kd.max() > 0)
+            if (material->kd > 0)
             {
                 color += texture->get_color(data.point) * ld * material->kd *
                     objects[light_point.obj_id]->get_attenuation(d);
@@ -99,7 +90,7 @@ namespace pathtracing {
         if (ld > 0)
         {
             //DIFFUSE LIGHT
-            if (mat->kd.max() > 0)
+            if (mat->kd > 0)
             {
                 Vector3 diffuse_c = text->get_color(hit_data.point);
                 float attenuation = 1.0 / (material->a * d * d + material->b * d
@@ -122,7 +113,7 @@ namespace pathtracing {
 
         if (debug && debug_ray)
             std::cout << "light * emitted_rad:" << color
-                      << this->emitted_rad <<"\n";
-        return color * this->emitted_rad;
+                      << this->material->ke<<"\n";
+        return color * this->material->ke;
     }
 }

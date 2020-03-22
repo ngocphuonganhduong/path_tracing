@@ -11,16 +11,10 @@ namespace pathtracing {
     class Object {
         using shared_objs = std::vector<std::shared_ptr<Object>>;
     public:
-        Object(const Vector3& position, const Vector3& emitted_rad,
-               shared_mat mat, shared_text text, shared_mod model);
-        Object(const Vector3& position, shared_mat mat, shared_text text,
-               shared_mod model);
+        Object(const Vector3& position, shared_mat mat, shared_text text, shared_mod model);
 
         //constructor with a uniform texture
-        Object(const Vector3& position, const Vector3& emitted_rad,
-               shared_mat mat, const Vector3& color, shared_mod model);
-        Object(const Vector3& position, shared_mat mat, const Vector3& color,
-               shared_mod model);
+        Object(const Vector3& position, shared_mat mat, const Vector3& color, shared_mod model);
 
         bool hit(const Ray&, HitRecord& hit_data) const;
         Vector3 get_color_from_light_point(shared_objs objects,
@@ -39,7 +33,6 @@ namespace pathtracing {
 
 
         Vector3 position; //world position
-        Vector3 emitted_rad;
         shared_mat material;
         shared_text texture;
         shared_mod model;

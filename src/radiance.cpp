@@ -4,14 +4,13 @@
 namespace pathtracing {
 
     Vector3 Pathtracer::get_direct_light_radiance(Vertices light_path,
-                                             const HitRecord& hit_data,
-                                             const Vector3 dir) {
+                                                  const HitRecord &hit_data,
+                                                  const Vector3 dir) {
         Vector3 rad;
         HitRecord tem;
         Vector3 dirl;
         shared_obj o = scene.objects[hit_data.obj_id];
-        for (auto v: light_path)
-        {
+        for (auto v: light_path) {
             //hared_obj lo = scene.objects[v.obj_id];
             dirl = hit_data.point - v.pos; //From light vertex to obj
             dirl.normalize();
@@ -20,12 +19,11 @@ namespace pathtracing {
             Ray shadow_ray(v.pos + dirl * 0.0001, dirl);
 
             if (debug && debug_ray)
-                std::cout << "Shoot shadow ray: "<< shadow_ray << "\n";
+                std::cout << "Shoot shadow ray: " << shadow_ray << "\n";
 
             //Check if it is visible (not hit any thing before hit the light)
             if (scene.find_intersection(shadow_ray, tem) &&
-                tem.obj_id == hit_data.obj_id)
-            {
+                tem.obj_id == hit_data.obj_id) {
                 if (tem.normal.dot(dir) > 0)
                     tem.normal *= -1;
 
@@ -37,75 +35,56 @@ namespace pathtracing {
         return rad;
     }
 
-    Vector3 Pathtracer::get_radiance(float x, float y, int niter, Vertices light_path)
-    {
-        Ray ray = scene.init_ray(x, y);
-        bool is_continue = true;
-        HitRecord hit_data;
+    Vector3 Pathtracer::get_radiance(const Ray &ray, int niter, Vertices light_path) {
+        HitRecord hd;
         Vector3 rad;
-        Vector3 dir;
-        double scale = 1.0;
-        shared_obj obj;
-        shared_mat mat;
-        double rnd;
-        while (is_continue)
-        {
-            if (!scene.find_intersection(ray, hit_data))
-                break;
+        if (!scene.find_intersection(ray, hd))
+            return rad;
 
-            if (debug && debug_ray)
-                std::cout << ray << "GET_RAD: obj_id: "<< hit_data.obj_id << "\n";
+        //if (debug && debug_ray)
+        //    std::cout << ray << "GET_RAD: obj_id: "<< hd.obj_id << "\n";
 
-            if (hit_data.normal.dot(ray.get_direction()) > 0)
-                hit_data.normal *= -1;
+        Vector3 dir = ray.get_direction();
+        if (hd.normal.dot(dir) > 0)
+            hd.normal *= -1;
 
-            obj = scene.objects[hit_data.obj_id];
-            mat = obj->material;
+        shared_mat mat = scene.objects[hd.obj_id]->material;
 
-            rad += (scene.ambient_light * mat->ka + obj->emitted_rad) * scale;
+        rad += scene.ambient_light * mat->ka * mat->d + mat->ke;
 
-            //BIDIRECTIONAL PATHTRACING
-            rad += get_direct_light_radiance(light_path, hit_data,
-                                             ray.get_direction()) * scale;
-            if (niter >= max_idl_bounce)
-            {
-                //ROUSSIAN ROULETTE to terminate path
-                double p = mat->kr * terminate_param;
-                if (rand1() < p)
-                    scale /= p;
-                else
-                    break;
-            }
+        //BIDIRECTIONAL PATHTRACING
+        rad += get_direct_light_radiance(light_path, hd, dir) * mat->d;
 
-            if (mat->kr < 0)
-                break;
-            //ROUSSIAN ROULETTE to decide with types of reflectance
-            //3 types of reflectance: DIFFUSE, SPECULAR, GLOSSY
-            double pd = (mat->kd.x + mat->kd.y + mat->kd.z)/3;
-            double ps = (mat->ks.x + mat->ks.y + mat->ks.z)/3;
-            rnd = rand1() * (pd + ps);
-            scale *= mat->kr;
-            if (rnd < pd) //DIFFUSE REFLECTANCE
-            {
-                dir = sample_diffuse(hit_data.normal);
-            }
-            else //SPECULAR/GLOSSY REFLECTANCE
-            {
-                if (rand1() < mat->ksm) {
-                    dir = ray.get_direction().reflect(hit_data.normal);
-                }
-                else {
-                    dir = sample_specular(hit_data.normal, mat->ns);
-                }
-                //float ls = dir.dot(ray.get_direction()) / (dir.norm() * ray.get_direction().norm());
-                //if (ls > 0)
-                //{
-                //}
-            }
-            ray = Ray(hit_data.point, dir);
-            niter += 1;
+        double p = 1.0;
+        if (niter >= max_idl_bounce) {
+            //ROUSSIAN ROULETTE to terminate path
+            double p = mat->ke.max() * terminate_param;
+            if (drand48() >= p)
+                return rad;
         }
-        //TODO: refraction/opacity
+
+        switch (mat->type) {
+            case Material::DIFFUSE:
+                dir = sample_diffuse(hd.normal);
+                break;
+            case Material::SPECULAR:
+                dir = ray.get_direction().reflect(hd.normal);
+                break;
+            default:
+                dir = sample_specular(hd.normal, mat->ns);
+        }
+        if (mat->d > 0)
+            rad += get_radiance(Ray(hd.point, dir), niter + 1, light_path) * mat->kr * mat->d;
+        if (mat->d < 1) {
+            auto tmp = dir.refract(hd.normal, 1.0 / mat->ni);
+            if (tmp != std::nullopt) {
+                Ray r_ray(hd.point, tmp.value());
+                Vector3 col = get_radiance(r_ray, niter + 1, light_path) * (1 - mat->kr) * (1 - mat->d);
+                if (debug && debug_ray)
+                    std::cout << "refraction: " << r_ray << "color: " << col << "\n";
+                rad += col;
+            }
+        }
         return rad;
     }
 }

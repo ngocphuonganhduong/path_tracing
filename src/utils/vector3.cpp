@@ -91,12 +91,21 @@ namespace pathtracing {
         return (x + y + z) / 3;
     }
     double rand1() {
-        return double(rand()) / (double(RAND_MAX) + 1.0);
+        return double(rand() % 1000) / (double(RAND_MAX) + 1.0);
     }
     void Vector3::clamp(double min, double max) {
         x = std::clamp(x, min, max);
         y = std::clamp(y, min, max);
         z = std::clamp(z, min, max);
+    }
+    std::optional<Vector3> Vector3::refract(const Vector3& normal,
+                                            double n) const {
+        const double cosI = -normal.dot(*this);
+        const double sinT2 = n * n * (1 - cosI * cosI);
+        if (sinT2 > 1)
+            return std::nullopt;
+        const double cosT = sqrt(1 - sinT2);
+        return *this * n + normal * (n * cosI - cosT);
     }
 
 }

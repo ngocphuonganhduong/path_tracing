@@ -16,9 +16,9 @@ namespace pathtracing {
         area_size = 1.0 / 4.0;
 
         pixels = new uint8_t[scene_.width * scene_.height * 3];
-        max_dl_bounce = 2;
+        max_dl_bounce = 1;
         max_idl_bounce = 5;
-        terminate_param = 0.5;
+        terminate_param = 0;
         max_intensity = 0.9;
         filename = "output.ppm";
     }
@@ -51,8 +51,8 @@ namespace pathtracing {
                 for (unsigned int sx = 0; sx < s_size; ++sx)
                     for (unsigned int sy = 0; sy < s_size; ++sy)
                     {
-                        c += trace(double(x) - area_size/2 + rand1() * area_size,
-                                   double(y) - area_size/2 + rand1() * area_size);
+                        c += trace(double(x) - area_size/2 + drand48() * area_size,
+                                   double(y) - area_size/2 + drand48() * area_size);
                     }
                 c /= n_sam;
                 set_values(x, y, c);

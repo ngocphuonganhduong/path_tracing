@@ -7,28 +7,33 @@
 namespace pathtracing {
     class Material {
     public:
-        Material(const Vector3& ka_, const Vector3& kd_, const Vector3& ks_,
-                 float ns_, float kr_, float ksm_)
-            : ka(ka_), kd(kd_), ks(ks_), ns(ns_), kr(kr_), ksm(ksm_) {}
+        enum Type {DIFFUSE = 0, SPECULAR, GLOSSY};
+        Material(Type type_, double ka_, double kd_, const Vector3& ks_, double kr_, double ns_, double ni_, double d_)
+            : type(type_), ka(ka_), kd(kd_), ks(ks_), kr(kr_), ns(ns_), ni(ni_), d(d_) {}
 
-        Material(const Vector3& ka_, const Vector3& kd_, const Vector3& ks_,
-                 float ns_, float kr_, float ksm_, float a_, float b_, float c_)
-            : ka(ka_), kd(kd_), ks(ks_), ns(ns_), kr(kr_), ksm(ksm_),
-              a(a_), b(b_), c(c_){}
+        Material(const Vector3& ke_, double a_, double b_, double c_): ke(ke_), a(a_), b(b_), c(c_) {}
 
-        Material(float a_, float b_, float c_): a(a_), b(b_), c(c_) {}
-        Vector3 ka;
-        Vector3 kd;
+        void set_emission(const Vector3& ke_, double a_, double b_, double c_) {
+            ke = ke_;
+            a = a_;
+            b = b_;
+            c = c_;
+        }
+
+        Type type = DIFFUSE;
+        double ka = 1;
+        double kd = 1;
         Vector3 ks;
-        float ns; //shininess
-        float kr; //reflectivity coef
-        float ksm; //smoothness [0, 1] from blur to clear effect
-
+        double kr = 0;
+        double ns = 1; //shininess
+        double ni = 1; // optical density (aka index of refraction
+        double d = 1; //opacity
         //Control the intensity of diffuse = 1.0/f(distance);
         //f(d) = a*distance*distance + b*distance + c
-        float a = 0;
-        float b = 0;
-        float c = 1.0;
+        Vector3 ke;
+        double a = 0;
+        double b = 0.5;
+        double c = 1.0;
     };
 
     using shared_mat = std::shared_ptr<Material>;

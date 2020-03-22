@@ -34,7 +34,7 @@ namespace pathtracing {
         Vector3 get_direct_light_radiance(Vertices light_path,
                                           const HitRecord& hit_data,
                                           const Vector3 dir);
-        Vector3 get_radiance(float x, float y, int niter, Vertices light_path);
+        Vector3 get_radiance(const Ray& ray, int niter, Vertices light_path);
         Scene scene;
         unsigned int n_sam; //nb of samples per ray
         unsigned int s_size; // n_sam = s_size x s_size

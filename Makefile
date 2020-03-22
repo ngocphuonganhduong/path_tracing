@@ -37,8 +37,8 @@ OBJ_FILES = $(CPP_FILES:.cpp=.o)
 
 
 CXX_FLAGS += -Wall -Wextra -O3 -g -std=c++17 -pthread -faligned-new \
-		-fsanitize=address	\
 		-I$(SRC_DIR)
+#		-fsanitize=address	\
 
 CXX_FLAGS += -lm
 
