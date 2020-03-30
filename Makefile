@@ -9,6 +9,7 @@ PATHTRACER_FILES = $(SRC_DIR)/utils/vector3.cpp \
 		$(SRC_DIR)/objects/models/square.cpp \
 		$(SRC_DIR)/objects/models/triangle_mesh.cpp \
 		$(SRC_DIR)/objects/object.cpp \
+		$(SRC_DIR)/objects/object_loader.cpp \
 		$(SRC_DIR)/brdf.cpp \
 		$(SRC_DIR)/scene.cpp \
 		$(SRC_DIR)/pathtracer.cpp \
@@ -51,6 +52,7 @@ all: build
 
 build: $(OBJ_FILES)
 	$(CC)  $(SRC_DIR)/main.cpp -o $(BIN) $(OBJ_FILES) $(CXX_FLAGS)
+	#$(CC)  $(SRC_DIR)/main2.cpp -o $(BIN) $(OBJ_FILES) $(CXX_FLAGS)
 
 scene1: $(OBJ_FILES)
 	$(CC)  $(SRC_DIR)/test_scene1.cpp -o $(BIN) $(OBJ_FILES) $(CXX_FLAGS)
