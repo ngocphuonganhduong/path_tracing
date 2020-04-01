@@ -17,6 +17,7 @@ set(SOURCE
         src/objects/models/square.cpp
         src/objects/models/triangle_mesh.cpp
         src/objects/object.cpp
+        src/objects/object_loader.cpp
         src/scene.cpp
         src/render.cpp
         src/classic_pt.cpp
@@ -28,7 +29,7 @@ set(CMAKE_XCODE_GENERATE_SCHEME ON)
 set(CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER ON)
 set(CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN ON)
 add_executable(main src/main.cpp ${SOURCE})
-add_executable(main2 src/main.cpp ${SOURCE})
+add_executable(main2 src/main2.cpp ${SOURCE})
 add_compile_options(-Wall -Werror -Wextra -fsanitize=address)
 target_link_libraries (main ${CMAKE_THREAD_LIBS_INIT} -fsanitize=address)
 target_link_libraries (main2 ${CMAKE_THREAD_LIBS_INIT} -fsanitize=address)

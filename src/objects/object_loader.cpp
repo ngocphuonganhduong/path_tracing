@@ -14,7 +14,7 @@ namespace pathtracing
 
             if (!file.is_open())
             {
-                std::cerr << "ERROR: cannot open " << filename << "file.\n";
+                std::cerr << "ERROR: cannot open " << filename << " file.\n";
                 return -1;
             }
 
