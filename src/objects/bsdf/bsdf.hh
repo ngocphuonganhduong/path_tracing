@@ -6,8 +6,8 @@
 #define BSDF_HH
 
 #include <memory>
-#include "../../utils/vector3.hh"
-#include "../../utils/vertex.hh"
+//#include "../../utils/vertex.hh"
+#include "../../utils/matrix.hh"
 #include "../../utils/sampler.hh"
 
 namespace pathtracing {
