@@ -3,7 +3,7 @@
 
 namespace pathtracing {
 
-    void parse_arguments(Pathtracer& pt, int argc, char **argv, int& x, int& y)
+    void parse_arguments(Pathtracer& pt, int argc, char **argv, double& x, double& y)
     {
 
         for (int i = 1; i < argc; ++i)
@@ -19,8 +19,8 @@ namespace pathtracing {
                                || strcmp(argv[i], "-r") == 0))
             {
                 debug_ray = true;
-                x = std::atoi(argv[i + 1]);
-                y = std::atoi(argv[i + 2]);
+                x = std::atof(argv[i + 1]);
+                y = std::atof(argv[i + 2]);
                 i += 2;
             }
             else if (strcmp(argv[i], "--indirect") == 0) //nb of indirect bounces
@@ -39,6 +39,11 @@ namespace pathtracing {
                 i += 1;
                 pt.filename = argv[i];
             }
+            else if (strcmp(argv[i], "--traditional") == 0)
+            {
+                pt.mode = TRADITIONAL_PT;
+            }
+
         }
     }
 

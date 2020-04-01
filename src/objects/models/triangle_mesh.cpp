@@ -1,16 +1,17 @@
-#include "model.hh"
+#include "../object.hh"
+#include "../../utils/sampler.hh"
 
 namespace pathtracing {
 
-    TriangleMesh::TriangleMesh(TriVector& triangles_, const Vector3& scale_)
-        : scale(scale_), triangles(triangles_) {}
+    TriangleMesh::TriangleMesh(const Vector3 &position, shared_mat mat, TriVector &triangles_, const Vector3 &scale_)
+            : Object(position, mat), scale(scale_), triangles(triangles_) {}
+//
+//    TriangleMesh::TriangleMesh(const Vector3 &position, shared_mat mat, const Vector3 &color,
+//                               TriVector &triangles_, const Vector3 &scale_)
+//            : Object(position, mat, color), scale(scale_), triangles(triangles_) {}
 
-    Vector3 TriangleMesh::get_sample(const Vector3&) const {
-        return triangles[round(drand48() * (triangles.size() - 1))].p[0];
-    }
-    bool TriangleMesh::hit (const Vector3& pos, const Ray& r,
-                            HitRecord& hit_data, const Triangle& tri) const
-    {
+
+    bool TriangleMesh::hit(const Ray &r, HitRecord &hit_data, const Triangle &tri) const {
         const double EPSILON = 0.0001;
 
         Vector3 p0 = tri.p[0] * scale;
@@ -24,7 +25,7 @@ namespace pathtracing {
         float a = edge1.dot(h);
         if (a < -EPSILON || a > EPSILON) {
             float f = 1.0 / a;
-            Vector3 s = r.get_origin() - pos - p0;
+            Vector3 s = r.get_origin() - position - p0;
             float u = f * s.dot(h);
 
             if (u >= 0 && u <= 1) {
@@ -46,17 +47,14 @@ namespace pathtracing {
         return false;
     }
 
-    bool TriangleMesh::hit (const Vector3& pos, const Ray& r,
-                            HitRecord& hit_data) const
-    {
+    bool TriangleMesh::hit(const Ray &r, HitRecord &hit_data) const {
         bool hit = false;
         HitRecord tem;
         float min_ds = INFINITY;
         float ds = 0;
 
         for (auto tri: this->triangles) {
-            if (this->hit(pos, r, tem, tri))
-            {
+            if (this->hit(r, tem, tri)) {
                 ds = (tem.point - r.get_origin()).norm_square();
                 if (!hit || ds < min_ds) {
                     hit_data = tem;
@@ -66,5 +64,20 @@ namespace pathtracing {
             }
         }
         return hit;
+    }
+
+    Vector3 TriangleMesh::sampleSurfacePosition(double &pdf) const {
+        pdf = sampleSurfacePositionPDF();
+        auto tri = triangles[round(drand48() * (triangles.size() - 1))];
+        Vector3 surfaceNormal = (tri.p[1] - tri.p[0]).cross(tri.p[2] - tri.p[0]);
+        surfaceNormal.normalize();
+        return position + tri.p[0];
+    }
+
+    double TriangleMesh::sampleSurfacePositionPDF() const {
+        return 1.0 / triangles.size();
+    }
+    double  TriangleMesh::sampleDirectionPDF(const BSDFRecord& ) const {
+        return uniformSampleSpherePDF();
     }
 }

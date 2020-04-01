@@ -6,20 +6,28 @@
 namespace pathtracing {
     class Ray {
     public:
-        Ray(const Vector3& origin, const Vector3& direction);
-        Vector3 get_origin() const;
-        Vector3 get_direction() const;
-        friend std::ostream& operator<<(std::ostream& out, Ray const& r);
+        constexpr Ray() noexcept = default;
+
+        constexpr Ray(const Vector3 &origin, const Vector3 &direction) noexcept  : origin_(origin),
+                                                                                   direction_(direction) {};
+
+        constexpr Vector3 get_origin() const noexcept {
+            return origin_;
+        }
+
+        constexpr Vector3 get_direction() const noexcept {
+            return direction_;
+        }
+
+        friend std::ostream &operator<<(std::ostream &out, Ray const &r) {
+            return out << "ray: O" << r.origin_ << " + D" << r.direction_;
+        }
+
     private:
-        Vector3 origin_;
-        Vector3 direction_;
+        Vector3 origin_{};
+        Vector3 direction_{};
     };
 
-    struct HitRecord {
-        unsigned int obj_id;
-        Vector3 point;
-        Vector3 normal;
-    };
 
 }
 #endif /* RAY_HH */

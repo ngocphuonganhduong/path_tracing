@@ -1,37 +1,51 @@
-#include "model.hh"
+#include "../object.hh"
+#include "../../utils/sampler.hh"
 
 namespace pathtracing {
-    Square::Square(const Vector3& normal, const Vector3& up, float distance)
-        : distance(distance)
-    {
+    Square::Square(const Vector3 &position, shared_mat mat, const Vector3 &normal, const Vector3 &up, float halfSize_)
+            : Object(position, mat), halfSize(halfSize_) {
         this->normal = normal;
         this->up = up;
         this->right = up.cross(normal);
         this->up.normalize();
         this->normal.normalize();
     }
-    Vector3 Square::get_sample(const Vector3& pos) const {
-        return pos + up * (-1 + 2 * drand48()) * distance
-            + right * (-1 + 2 * drand48()) * distance;
+
+    double Square::sampleSurfacePositionPDF() const {
+        return 1.0 / (halfSize * halfSize);
     }
-    bool Square::hit (const Vector3& pos, const Ray& r,
-                      HitRecord& hit_data) const
-    {
+
+    double Square::sampleDirectionPDF(const BSDFRecord& data) const {
+        return cosineSampleHemispherePDF(data);
+    }
+//    Vector3 Square::get_sample() const {
+//        return position + up * (-1 + 2 * drand48()) * halfSize
+//               + right * (-1 + 2 * drand48()) * halfSize;
+//    }
+
+    Vector3 Square::sampleSurfacePosition(double &pdf) const {
+        pdf = 1.0 / (halfSize * halfSize);
+        Vector3 surfaceNormal = normal;
+        return position + up * (-1 + 2 * drand48()) * halfSize + right * (-1 + 2 * drand48()) * halfSize;
+    }
+
+
+
+    bool Square::hit(const Ray &r, HitRecord &hit_data) const {
         float denom = this->normal.dot(r.get_direction());
         if (std::abs(denom) > 0.000001) {
-            float t = (pos - r.get_origin()).dot(this->normal) / denom;
-            if (t > 0.00001)
-            {
+            float t = (position - r.get_origin()).dot(this->normal) / denom;
+            if (t > 0.00001) {
                 hit_data.point = r.get_origin() + r.get_direction() * t;
                 hit_data.normal = this->normal;
                 hit_data.normal.normalize();
 
-                Vector3 point_to_center = pos - hit_data.point;
+                Vector3 point_to_center = position - hit_data.point;
                 float norm = point_to_center.norm();
-                float cos_alpha = point_to_center.dot(this->up)/(norm);
-                if (std::abs(cos_alpha) * norm <= distance) {
-                    cos_alpha = point_to_center.dot(this->right)/(norm);
-                    if (std::abs(cos_alpha) * norm <= distance) {
+                float cos_alpha = point_to_center.dot(this->up) / (norm);
+                if (std::abs(cos_alpha) * norm <= halfSize) {
+                    cos_alpha = point_to_center.dot(this->right) / (norm);
+                    if (std::abs(cos_alpha) * norm <= halfSize) {
                         return true;
                     }
                 }

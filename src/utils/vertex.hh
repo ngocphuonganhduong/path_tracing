@@ -6,15 +6,24 @@
 
 
 namespace pathtracing {
-    struct Vertex {
-        Vector3 pos;
-        unsigned int obj_id;
-        Vector3 col;
-        Vertex(const Vector3& position, unsigned int obj_id_,
-               const Vector3& col_)
-            : pos(position), obj_id(obj_id_), col(col_){}
-    };
-    using Vertices = std::vector<Vertex>;
 
+    struct HitRecord {
+        unsigned int obj_id;
+        Vector3 point;
+        Vector3 normal;
+    };
+
+    struct Vertex {
+        Vector3 li;
+        Vector3 wi; //incoming light direction
+        HitRecord data;
+
+        Vertex(const Vector3 &li_, const HitRecord &data_) : li(li_), data(data_) {}
+        Vertex(const Vector3 &li_, const Vector3 &wi_, const HitRecord &data_) : li(li_), wi(wi_), data(data_) {}
+
+    };
+
+    using Path = std::vector<Vertex>;
+    using Paths = std::vector<Path>;
 }
 #endif /* VERTEX_HH */

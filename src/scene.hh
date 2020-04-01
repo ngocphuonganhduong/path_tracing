@@ -2,7 +2,6 @@
 #define SCENE_HH
 
 #include "objects/object.hh"
-#include "brdf.hh"
 
 namespace pathtracing {
     //CAMERA
@@ -24,11 +23,12 @@ namespace pathtracing {
         Scene(int width, int height, Camera cam, const Vector3& ambient);
         void add_object(shared_obj obj);
 
-        Ray init_ray(float x, float y);
+        Ray init_ray(double x, double y);
         bool find_intersection(const Ray& ray, HitRecord &hit_point) const;
 
         ~Scene(){};
-        std::vector<shared_obj> objects;
+        std::vector<shared_obj> objects; //including objs
+        std::vector<shared_obj> lights;
 
         int width;
         int height;
