@@ -67,7 +67,7 @@ namespace pathtracing {
                       << ", " << scene.height << ")\n";
         Vector3(Pathtracer::*trace_func)(Ray);
         switch (mode) {
-            case TRADITIONAL_PT:
+            case CLASSIC_PT:
                 if (debug)
                     std::cout << "Traditional PT (only implicit light, no explicit)\n";
                 trace_func = &Pathtracer::trace_classic_pt;

@@ -19,7 +19,7 @@ namespace pathtracing {
                 this->bsdf = std::make_shared<PhongBSDF>(kd_, ks_, ns_);
                 break;
             case BLINN_PHONG:
-                this->bsdf = std::make_shared<DiffuseBSDF>(kd_);
+                this->bsdf = std::make_shared<BlinnPhongBSDF>(kd_, ks_, ns_);
                 break;
         }
     }

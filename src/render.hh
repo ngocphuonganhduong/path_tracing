@@ -12,7 +12,7 @@ namespace pathtracing {
     extern bool debug_ray;
 
     enum Mode {
-        TRADITIONAL_PT = 0, PT, BDPT
+        CLASSIC_PT = 0, PT, BDPT
     };
 
     class Pathtracer {

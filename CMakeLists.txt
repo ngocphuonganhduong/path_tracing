@@ -7,8 +7,8 @@ set(SOURCE
         src/utils/ray.hh
         src/utils/sampler.cpp
         src/utils/sampler.hh
-        src/objects/bsdf.hh
-        src/objects/bsdf.cpp
+        src/objects/bsdf/bsdf.hh
+        src/objects/bsdf/bsdf.cpp
         src/objects/material.hh
         src/objects/material.cpp
         src/objects/object.cpp

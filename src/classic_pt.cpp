@@ -20,14 +20,6 @@ namespace pathtracing {
             if (mat->ke.max() > 0) {
                 rad += mat->ke * cumulative;
             }
-            hd.normal.normalize();
-            Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
-            Matrix3x3 w2m = m2w.transpose();
-
-            BSDFRecord br;
-
-            br.wi = w2m * (ray.get_direction()) * -1;
-            Vector3 f = mat->bsdf->sampleBSDF(br, bsdf_pdf); //obtain wo and pdf
 
             if (niter >= max_idl_bounce) {
                 //ROUSSIAN ROULETTE to terminate path
@@ -36,6 +28,16 @@ namespace pathtracing {
                     break;
                 cumulative /= p;
             }
+
+            hd.normal.normalize();
+            Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
+            Matrix3x3 w2m = m2w.transpose();
+            BSDFRecord br;
+
+            br.wi = w2m * (ray.get_direction()) * -1;
+
+            Vector3 f = mat->bsdf->sampleBSDF(br, bsdf_pdf); //obtain wo and pdf
+
 //            if (debug_ray && debug) {
 //                std::cout << cumulative << " f:" << f << " pdf:" << bsdf_pdf << "\n";
 //                std::cout << "wo " << br.wo << " wi" << br.wi << "\n";

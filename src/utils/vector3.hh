@@ -72,6 +72,13 @@ namespace pathtracing {
             return *this;
         }
 
+        constexpr Vector3 &operator-=(const Vector3 &v) noexcept {
+            this->val[0] -= v.val[0];
+            this->val[1] -= v.val[1];
+            this->val[2] -= v.val[2];
+            return *this;
+        }
+
         constexpr Vector3 &operator*=(double c) noexcept {
             this->val[0] *= c;
             this->val[1] *= c;

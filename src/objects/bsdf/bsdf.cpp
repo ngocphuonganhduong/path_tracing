@@ -1,6 +1,6 @@
 #include "bsdf.hh"
-#include "../utils/sampler.hh"
-#include "../utils/matrix.hh"
+#include "../../utils/sampler.hh"
+#include "../../utils/matrix.hh"
 
 namespace pathtracing {
 
@@ -26,7 +26,6 @@ namespace pathtracing {
       * PERFECT SPECULAR BRDF
       *
       * **/
-
     Vector3 MirrorBSDF::f(const BSDFRecord &) const {
         return Vector3(0.0);
     }
@@ -48,14 +47,15 @@ namespace pathtracing {
     Vector3 PhongBSDF::sampleBSDF(BSDFRecord &data, double &pdf) const {
         double rnd = random_uniform();
         if (rnd < pd) {
+            Vector3 r = data.wi.reflect_model_space();
             data.wo = cosineSampleHemisphere(pdf); //pdf = cos_theta/PI
-            return kd_ * M_1_PI;
+            return kd_ * M_1_PI * pd + ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(fabs(Vector3::cos(data.wo, r)), ns_)) * ps;
         } else if (rnd < pd + ps) {
             data.wo = data.wi.reflect_model_space(); //reflected ray, projected on surface normal space
             Vector3 wo = cosinePowerSampleHemisphere(pdf, ns_); //glossy ray, projected on reflected ray
             Matrix3x3 r2n = Matrix3x3::modelToWorld(data.wo); //transform matrix from reflected space to normal space
             data.wo = r2n * wo;
-            return ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(wo.z(), ns_));
+            return kd_ * M_1_PI * pd + ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(wo.z(), ns_)) * ps;
         }
 
         return Vector3(0);
@@ -74,16 +74,44 @@ namespace pathtracing {
     }
 
     Vector3 PhongBSDF::f(const BSDFRecord &data) const {
-        Vector3 f;
-        if (pd > 0) {
-            f += kd_ * M_1_PI * pd;
-        }
-        if (ps > 0) {
-            Vector3 wr = data.wi.reflect_model_space(); //reflected ray, projected on surface normal space
-            f += ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(fabs(Vector3::cos(wr, data.wo)), ns_)) * ps;
-        }
-        return f;
+        Vector3 wr = data.wi.reflect_model_space(); //reflected ray, projected on surface normal space
+        return kd_ * M_1_PI * pd + ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(fabs(Vector3::cos(wr, data.wo)), ns_)) * ps;
     }
 
 
+    Vector3 BlinnPhongBSDF::sampleBSDF(BSDFRecord &data, double &pdf) const {
+        double rnd = random_uniform();
+        if (rnd >= pd + ps)
+            return Vector3(0.0);
+        Vector3 wh;
+        if (rnd < pd) {
+            data.wo = cosineSampleHemisphere(pdf); //pdf = cos_theta/PI
+            wh = (data.wo + data.wi).normalize();
+        }
+        else {
+            //Halfway vector
+            wh = cosinePowerSampleHemisphere(pdf, ns_); //halfway vector around normal
+            data.wo = (data.wi * -1).reflect(wh); //wo is the reflected ray of wi respecting to wh
+            pdf /= 4.0 * fabs(Vector3::cos(data.wo, wh));
+        }
+        return kd_ * M_1_PI * pd + ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(cos_theta(wh), ns_)) * ps;
+    }
+
+    double BlinnPhongBSDF::pdf(const BSDFRecord &data) const {
+        double rnd = random_uniform();
+        double pdf = 1.0;
+        if (rnd < pd) {
+            pdf = cosineSampleHemispherePDF(data);
+        }
+        if (rnd < pd + ps) {
+            Vector3 wh = (data.wo + data.wi).normalize();
+            pdf = cosinePowerSampleHemispherePDF(data, ns_) / (4.0 * fabs(Vector3::cos(data.wo, wh)));
+        }
+        return pdf;
+    }
+
+    Vector3 BlinnPhongBSDF::f(const BSDFRecord &data) const {
+        Vector3 wh = (data.wo + data.wi).normalize();
+        return kd_ * M_1_PI * pd + ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(wh.z(), ns_)) * ps;
+    }
 }

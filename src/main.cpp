@@ -26,11 +26,11 @@ int main(int argc, char **argv) {
 
     //OBJECT
     //type, ka, kd, ks, ns, ni, d
-    shared_mat mat = Material::create_phong_mat(ka, pink * 0.1, white * 0.5, 32);
-    auto o1 = std::make_shared<Sphere>(Vector3(1.5, 11, -2.4), mat, 1.4);
+    shared_mat mat = Material::create_mat(Material::BLINN_PHONG, ka, pink, white, 32);
+    auto o1 = std::make_shared<Sphere>(Vector3(1.5, 11, -2.5), mat, 1.4);
 
     shared_mat mat2 = Material::create_mat(Material::DIFFUSE, ka, yellow, white, 32);
-    auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -2.4), mat2, 0.8);
+    auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), mat2, 0.8);
 
     shared_mat mat_light = Material::create_mat(ka, white, ks, ns);
 
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
     Pathtracer pt(scene);
     parse_arguments(pt, argc, argv, x, y);
     if (debug_ray) {
-        if (pt.mode == TRADITIONAL_PT)
+        if (pt.mode == CLASSIC_PT)
             std::cout << pt.trace_classic_pt(scene.init_ray(x, y)) << "\n";
         else
             std::cout << pt.trace_pt(scene.init_ray(x, y)) << "\n";

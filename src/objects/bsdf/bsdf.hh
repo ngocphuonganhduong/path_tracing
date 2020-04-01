@@ -6,16 +6,15 @@
 #define BSDF_HH
 
 #include <memory>
-#include "../utils/vector3.hh"
-#include "../utils/vertex.hh"
-#include "../utils/sampler.hh"
+#include "../../utils/vector3.hh"
+#include "../../utils/vertex.hh"
+#include "../../utils/sampler.hh"
 
 namespace pathtracing {
 
 
     class BSDF {
     public:
-
 
         virtual Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const = 0;
 
@@ -59,7 +58,7 @@ namespace pathtracing {
 
     class PhongBSDF : public BSDF {
     public:
-        PhongBSDF(const Vector3 &kd, const Vector3 &ks, double &ns) : kd_(kd), ks_(ks), ns_(ns) {
+        PhongBSDF(const Vector3 &kd, const Vector3 &ks, const double &ns) : kd_(kd), ks_(ks), ns_(ns) {
             pd = kd.max();
             ps = ks.max();
             double s = pd + ps;
@@ -67,18 +66,30 @@ namespace pathtracing {
             ps /= s;
         }
 
-        Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const final;
+        Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const;
 
-        double pdf(const BSDFRecord &data) const final;
+        double pdf(const BSDFRecord &data) const;
 
-        Vector3 f(const BSDFRecord &data) const final;
+        Vector3 f(const BSDFRecord &data) const;
 
-    private:
+    protected:
         double pd = 0.5;
         double ps = 0.5;
         Vector3 kd_;
         Vector3 ks_;
         double ns_;
+    };
+
+
+    class BlinnPhongBSDF : public PhongBSDF {
+    public:
+        BlinnPhongBSDF(const Vector3 &kd, const Vector3 &ks, const double &ns) : PhongBSDF(kd, ks, ns) {}
+
+        Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const final;
+
+        double pdf(const BSDFRecord &data) const final;
+
+        Vector3 f(const BSDFRecord &data) const final;
     };
 
     using shared_bsdf = std::shared_ptr<BSDF>;

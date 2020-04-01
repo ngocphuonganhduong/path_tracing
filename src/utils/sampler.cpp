@@ -36,7 +36,7 @@ namespace pathtracing {
         double sin_theta = sqrt(1 - cosTheta * cosTheta);
         double phi = 2 * M_PI * drand48();
         Vector3 wo (sin_theta * cos(phi), sin_theta * sin(phi), cosTheta);
-        pdf = (n + 1.0)  * pow(cosTheta, n)/ (2.0 * M_PI);
+        pdf = (n + 1.0)  * 0.5 * M_1_PI * pow(cosTheta, n);
         return wo;
     }
 

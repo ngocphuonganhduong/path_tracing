@@ -39,9 +39,9 @@ namespace pathtracing {
                 i += 1;
                 pt.filename = argv[i];
             }
-            else if (strcmp(argv[i], "--traditional") == 0)
+            else if (strcmp(argv[i], "--classic") == 0)
             {
-                pt.mode = TRADITIONAL_PT;
+                pt.mode = CLASSIC_PT;
             }
 
         }

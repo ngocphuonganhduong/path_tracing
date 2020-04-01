@@ -4,7 +4,7 @@
 #include <memory>
 #include <cmath>
 #include "../utils/vector3.hh"
-#include "bsdf.hh"
+#include "bsdf/bsdf.hh"
 
 namespace pathtracing {
     class Material {
