@@ -59,11 +59,15 @@ namespace pathtracing {
     class PhongBSDF : public BSDF {
     public:
         PhongBSDF(const Vector3 &kd, const Vector3 &ks, const double &ns) : kd_(kd), ks_(ks), ns_(ns) {
-            pd = kd.max();
-            ps = ks.max();
-            double s = pd + ps;
-            pd /= s;
-            ps /= s;
+            Vector3 pds = kd + ks;
+            double pr = pds.max();
+            pd = kd.sum() / pds.sum();
+            ps = pr - pd;
+
+            if (pd + ps > 1)
+            {
+                std::cout << "[WARNING]: kd and ks violate the energy conservation. kd + ks must < 1\n";
+            }
         }
 
         Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const;

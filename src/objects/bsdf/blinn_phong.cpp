@@ -12,14 +12,19 @@ namespace pathtracing {
         Vector3 wh;
         if (rnd < pd) {
             data.wo = cosineSampleHemisphere(pdf); //pdf = cos_theta/PI
-            wh = (data.wo + data.wi).normalize();
-        } else {
-            //Halfway vector
-            wh = cosinePowerSampleHemisphere(pdf, ns_); //halfway vector around normal
-            data.wo = (data.wi * -1).reflect(wh); //wo is the reflected ray of wi respecting to wh
-            pdf /= 4.0 * fabs(Vector3::cos(data.wo, wh));
+            return kd_ * M_1_PI / pd;
         }
-        return kd_ * M_1_PI * pd + ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(cos_theta(wh), ns_)) * ps;
+        //Halfway vector
+        wh = cosinePowerSampleHemisphere(pdf, ns_); //halfway vector around normal
+        data.wo = (data.wi * -1).reflect(wh); //wo is the reflected ray of wi respecting to wh
+
+        //pdf /= std::min(2.0, 4.0 * fabs(Vector3::cos(data.wo, wh)));
+        pdf /= 4.0 * fabs(Vector3::cos(data.wo, wh));
+
+        //(n + 2) * (n + 4) / (8  * M_PI * pow(2, -n * 0.5) + n)
+        //return kd_ * (ns_ + 2) * (ns_ + 4) / (8  * M_PI * pow(2, -ns_ * 0.5) + ns_) *  (pow(cos_theta(wh), ns_)) * ps;
+
+        return ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(cos_theta(wh), ns_)) / ps;
     }
 
     double BlinnPhongBSDF::pdf(const BSDFRecord &data) const {

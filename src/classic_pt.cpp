@@ -6,7 +6,6 @@ namespace pathtracing {
         HitRecord hd;
         Vector3 rad;
         Vector3 cumulative(1.0);
-
         double bsdf_pdf = 1.0;
         int niter = 0;
         while (true) {
@@ -45,8 +44,6 @@ namespace pathtracing {
 //                std::cout << "rad " << rad << "\n";
 //            }
             cumulative *= f * fabs(cos_theta(br.wo)) / bsdf_pdf;
-
-            rad.clamp(0.0, 1.0);
             ray = Ray(hd.point, m2w * br.wo);
         }
         return rad;

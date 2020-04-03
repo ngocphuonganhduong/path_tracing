@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
     //OBJECT
     //type, ka, kd, ks, ns, ni, d
-    shared_mat mat = Material::create_mat(Material::BLINN_PHONG, ka, pink, white, 100);
+    shared_mat mat = Material::create_mat(Material::BLINN_PHONG, ka, pink*0.5, white*0.5, 100);
     auto o1 = std::make_shared<Sphere>(Vector3(1.5, 11, -2.5), mat, 1.4);
 
     shared_mat mat2 = Material::create_mat(Material::DIFFUSE, ka, yellow, white, 32);
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
                                                      2);
 
     //WALL
-    shared_mat mat_f = Material::create_mat(Material::MIRROR, ka, green , ks, 32);
+    shared_mat mat_f = Material::create_mat(Material::DIFFUSE, ka, green , ks, 32);
     shared_obj floor = std::make_shared<Square>(Vector3(0, distance - half_l,
                                                         -half_l),
                                                 mat_f,

@@ -60,7 +60,7 @@ namespace pathtracing {
             }
             cumulative *= f * fabs(cos_theta(br.wo)) / bsdf_pdf;
 
-            rad.clamp(0.0, 1.0);
+//            rad.clamp(0.0, 1.0);
             ray = Ray(hd.point, m2w * br.wo);
         }
         return rad;
