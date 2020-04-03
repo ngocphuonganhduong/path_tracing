@@ -13,8 +13,10 @@ int main(int argc, char **argv) {
     Vector3 yellow(1, 1, 0.2);
     Vector3 cyan(0, 1, 1);
     Vector3 purple(0.7, 0, 1);
-    Vector3 wall_color (0.95, 0.92, 0.97);
+    Vector3 wall_color(0.95, 0.92, 0.97);
     double half_l = 4;
+    double distance = 16;
+
 
     //MATERIAL
     Vector3 ka(0.1, 0.1, 0.1);
@@ -26,54 +28,55 @@ int main(int argc, char **argv) {
 
     //OBJECT
     //type, ka, kd, ks, ns, ni, d
-    shared_mat mat = Material::create_mat(Material::BLINN_PHONG, ka, pink*0.5, white*0.5, 100);
-    auto o1 = std::make_shared<Sphere>(Vector3(1.5, 11, -2.5), mat, 1.4);
+    shared_mat mat = std::make_shared<Material>(ka, pink * 0.5, white * 0.5, 100);
+    auto o1 = std::make_shared<Sphere>(Vector3(1.5, 11, -2.5), std::make_shared<PhongBSDF>(mat), 1.4);
 
-    shared_mat mat2 = Material::create_mat(Material::DIFFUSE, ka, yellow, white, 32);
-    auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), mat2, 0.8);
+    shared_mat mat2 = std::make_shared<Material>(ka, yellow, white, 32);
+    auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), std::make_shared<DiffuseBSDF>(mat2), 0.8);
 
-    shared_mat mat_light = Material::create_mat(ka, white, ks, ns);
+    shared_mat mat_light = std::make_shared<Material>(ka, white, ks, ns);
+    mat_light->set_emission(white * 0.9, 0.05, 1, 1);
 
-    double distance = 16;
 
-    mat_light->set_emission(white *0.9, 0.05, 1, 1);
-    shared_obj area_light = std::make_shared<Square>(Vector3(0, distance - 6, half_l-0.01),
-                                                     mat_light, Vector3(0, 0, -1),
+    shared_obj area_light = std::make_shared<Square>(Vector3(0, distance - 6, half_l - 0.01),
+                                                     std::make_shared<DiffuseBSDF>(mat_light), Vector3(0, 0, -1),
                                                      Vector3(0, 1, 0),
                                                      2);
 
     //WALL
-    shared_mat mat_f = Material::create_mat(Material::DIFFUSE, ka, green , ks, 32);
+    shared_mat mat_f = std::make_shared<Material>(ka, green, ks, 32);
     shared_obj floor = std::make_shared<Square>(Vector3(0, distance - half_l,
                                                         -half_l),
-                                                mat_f,
+                                                std::make_shared<DiffuseBSDF>(mat_f),
                                                 Vector3(0, 0, 1),
                                                 Vector3(0, 1, 0),
                                                 half_l);
 
-    shared_mat mat_w = Material::create_mat(ka, white, ks, ns);
 
-    shared_mat mat_roof = Material::create_mat(ka, wall_color , ks, ns);
+    shared_bsdf wall_bsdf = std::make_shared<DiffuseBSDF>(std::make_shared<Material>(ka, white, ks, ns));
+    shared_bsdf root_bsdf = std::make_shared<DiffuseBSDF>(std::make_shared<Material>(ka, wall_color, ks, ns));
+    shared_bsdf left_wall_bsdf = std::make_shared<DiffuseBSDF>(std::make_shared<Material>(ka, red, ks, ns));
+    shared_bsdf right_wall_bsdf = std::make_shared<DiffuseBSDF>(std::make_shared<Material>(ka, blue, ks, ns));
+
 
     shared_obj roof = std::make_shared<Square>(Vector3(0, distance - half_l, half_l),
-                                               mat_roof, Vector3(0, 0, -1),
+                                               root_bsdf, Vector3(0, 0, -1),
                                                Vector3(0, 1, 0),
                                                half_l);
 
     shared_obj front_w = std::make_shared<Square>(Vector3(0, distance, 0),
-                                                  mat_w, Vector3(0, -1, 0),
+                                                  wall_bsdf, Vector3(0, -1, 0),
                                                   Vector3(0, 0, 1),
                                                   half_l);
 
-    shared_mat mat_left = Material::create_mat(ka, red , ks, ns);
 
     shared_obj left_w = std::make_shared<Square>(Vector3(-half_l, distance - half_l, 0),
-                                                 mat_left, Vector3(1, 0, 0),
+                                                 left_wall_bsdf, Vector3(1, 0, 0),
                                                  Vector3(0, 0, 1),
                                                  half_l);
-    shared_mat mat_right = Material::create_mat(ka, blue , ks, ns);
+
     shared_obj right_w = std::make_shared<Square>(Vector3(half_l, distance - half_l, 0),
-                                                  mat_right, Vector3(-1, 0, 0),
+                                                  right_wall_bsdf, Vector3(-1, 0, 0),
                                                   Vector3(0, 0, 1),
                                                   half_l);
     Camera cam(Vector3(0, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1), 60);

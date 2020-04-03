@@ -17,9 +17,9 @@ namespace pathtracing {
                 break;
             }
 
-            shared_mat mat = scene.objects[hd.obj_id]->material;
+            shared_bsdf bsdf = scene.objects[hd.obj_id]->bsdf;
 
-            rad += scene.ambient_light * mat->ka * cumulative;
+            rad += scene.ambient_light * bsdf->ka() * cumulative;
             hd.normal.normalize();
             Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
             Matrix3x3 w2m = m2w.transpose();
@@ -27,9 +27,9 @@ namespace pathtracing {
             BSDFRecord br;
             br.wi = w2m * (ray.get_direction().normalize()) * -1;
 
-            if (mat->ke.max() > 0) {
+            if (bsdf->is_light()) {
                 light_pdf = scene.objects[hd.obj_id]->sampleSurfacePositionPDF();
-                rad += mat->ke * cumulative * bsdf_pdf / (bsdf_pdf + light_pdf);
+                rad += bsdf->ke() * cumulative * bsdf_pdf / (bsdf_pdf + light_pdf);
             }
 
             for (auto light: scene.lights) {
@@ -42,14 +42,14 @@ namespace pathtracing {
                     br.wo = w2m * (l2o.normalize() * -1); //object to light
                     if (d2 < 1) // avoid too small
                         d2 = 1;
-                    Vector3 color = mat->bsdf->f(br) * fabs(cos_theta(br.wo)) * cumulative /
-                                    ((bsdf_pdf + light_pdf) * (d2 * mat->a + sqrt(d2) + mat->b + mat->c));
+                    Vector3 color = bsdf->f(br) * fabs(cos_theta(br.wo)) * cumulative /
+                                    ((bsdf_pdf + light_pdf) * bsdf->attenuation(d2));
                     rad += color;
                 }
             }
 
 
-            Vector3 f = mat->bsdf->sampleBSDF(br, bsdf_pdf); //obtain wo and pdf
+            Vector3 f = bsdf->sampleBSDF(br, bsdf_pdf); //obtain wo and pdf
 
             if (niter >= max_idl_bounce) {
                 //ROUSSIAN ROULETTE to terminate path

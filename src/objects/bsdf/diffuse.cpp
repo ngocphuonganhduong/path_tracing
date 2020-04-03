@@ -7,7 +7,7 @@ namespace pathtracing {
      *
      * **/
     Vector3 DiffuseBSDF::f(const BSDFRecord &) const {
-        return kd_ * M_1_PI;
+        return mat_->kd * M_1_PI;
     }
 
     double DiffuseBSDF::pdf(const BSDFRecord &data) const {
@@ -16,7 +16,7 @@ namespace pathtracing {
 
     Vector3 DiffuseBSDF::sampleBSDF(BSDFRecord &data, double &pdf) const {
         data.wo = cosineSampleHemisphere(pdf); //pdf = cos_theta/PI
-        return kd_ * M_1_PI; //brdf of diffuse is kd_ / pi
+        return mat_->kd * M_1_PI; //brdf of diffuse is kd_ / pi
     }
 
 }

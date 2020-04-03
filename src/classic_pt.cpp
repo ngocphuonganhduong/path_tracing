@@ -13,11 +13,11 @@ namespace pathtracing {
                 break;
             }
 
-            shared_mat mat = scene.objects[hd.obj_id]->material;
-            rad += scene.ambient_light * mat->ka * cumulative;
+            shared_bsdf bsdf = scene.objects[hd.obj_id]->bsdf;
+            rad += scene.ambient_light * bsdf->ka() * cumulative;
 
-            if (mat->ke.max() > 0) {
-                rad += mat->ke * cumulative;
+            if (bsdf->is_light()) {
+                rad += bsdf->ke() * cumulative;
             }
 
             if (niter >= max_idl_bounce) {
@@ -35,7 +35,7 @@ namespace pathtracing {
 
             br.wi = w2m * (ray.get_direction()) * -1;
 
-            Vector3 f = mat->bsdf->sampleBSDF(br, bsdf_pdf); //obtain wo and pdf
+            Vector3 f = bsdf->sampleBSDF(br, bsdf_pdf); //obtain wo and pdf
 
 //            if (debug_ray && debug) {
 //                std::cout << cumulative << " f:" << f << " pdf:" << bsdf_pdf << "\n";

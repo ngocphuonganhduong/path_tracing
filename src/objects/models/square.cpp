@@ -2,8 +2,8 @@
 #include "../../utils/sampler.hh"
 
 namespace pathtracing {
-    Square::Square(const Vector3 &position, shared_mat mat, const Vector3 &normal, const Vector3 &up, float halfSize_)
-            : Object(position, mat), halfSize(halfSize_) {
+    Square::Square(const Vector3 &position, shared_bsdf bsdf, const Vector3 &normal, const Vector3 &up, float halfSize_)
+            : Object(position, bsdf), halfSize(halfSize_) {
         this->normal = normal;
         this->up = up;
         this->right = up.cross(normal);

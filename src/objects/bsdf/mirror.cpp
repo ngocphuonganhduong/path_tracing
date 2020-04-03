@@ -16,6 +16,6 @@ namespace pathtracing {
     Vector3 MirrorBSDF::sampleBSDF(BSDFRecord &data, double &pdf) const {
         data.wo = data.wi.reflect_model_space();
         pdf = 1.0;
-        return ks_;
+        return mat_->ks;
     }
 }

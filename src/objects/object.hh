@@ -4,12 +4,13 @@
 #include "material.hh"
 #include "../utils/ray.hh"
 #include "../utils/vertex.hh"
+#include "bsdf/bsdf.hh"
 
 namespace pathtracing {
     class Object {
         using shared_objs = std::vector<std::shared_ptr<Object>>;
     public:
-        Object(const Vector3 &position, shared_mat mat);
+        Object(const Vector3 &position, shared_bsdf bsdf);
 
         virtual bool hit(const Ray &, HitRecord &hit_data) const = 0;
 
@@ -18,13 +19,13 @@ namespace pathtracing {
 
         virtual Vector3 sampleSurfacePosition(double &pdf) const = 0;
 
-        Ray sampleLightRay(double &pdfForward, double &pdfBackward) const;
-
-        Vector3 phong_lighting(const Vector3 &li, const Vector3 &wi, const Vector3 &wo, const Vector3 &normal,
-                               const double &d2);
+//        Ray sampleLightRay(double &pdfForward, double &pdfBackward) const;
+//
+//        Vector3 phong_lighting(const Vector3 &li, const Vector3 &wi, const Vector3 &wo, const Vector3 &normal,
+//                               const double &d2);
 
         Vector3 position; //world position
-        shared_mat material;
+        shared_bsdf bsdf;
     };
 
     using shared_obj = std::shared_ptr<Object>;
@@ -33,7 +34,7 @@ namespace pathtracing {
     //SPHERE
     class Sphere : public Object {
     public:
-        Sphere(const Vector3 &position, shared_mat mat, float radius);
+        Sphere(const Vector3 &position, shared_bsdf bsdf, float radius);
 
         bool hit(const Ray &r, HitRecord &hit_data) const final;
 
@@ -58,7 +59,7 @@ namespace pathtracing {
 
     class TriangleMesh : public Object {
     public:
-        TriangleMesh(const Vector3 &position, shared_mat mat, TriVector &triangles,
+        TriangleMesh(const Vector3 &position, shared_bsdf bsdf, TriVector &triangles,
                      const Vector3 &scale);
 
 
@@ -80,7 +81,7 @@ namespace pathtracing {
     //SQUARE
     class Square : public Object {
     public:
-        Square(const Vector3 &position, shared_mat mat, const Vector3 &normal, const Vector3 &up, float halfSize);
+        Square(const Vector3 &position, shared_bsdf bsdf, const Vector3 &normal, const Vector3 &up, float halfSize);
 
         bool hit(const Ray &r, HitRecord &hit_data) const final;
 

@@ -10,13 +10,13 @@ namespace pathtracing {
         if (rnd < pd) {
             Vector3 r = data.wi.reflect_model_space();
             data.wo = cosineSampleHemisphere(pdf); //pdf = cos_theta/PI
-            return kd_ * M_1_PI / pd; //+ ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(fabs(Vector3::cos(data.wo, r)), ns_)) * ps;
+            return mat_->kd * M_1_PI / pd; //+ ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(fabs(Vector3::cos(data.wo, r)), ns_)) * ps;
         } else if (rnd < pd + ps) {
             data.wo = data.wi.reflect_model_space(); //reflected ray, projected on surface normal space
-            Vector3 wo = cosinePowerSampleHemisphere(pdf, ns_); //glossy ray, projected on reflected ray
+            Vector3 wo = cosinePowerSampleHemisphere(pdf, mat_->ns); //glossy ray, projected on reflected ray
             Matrix3x3 r2n = Matrix3x3::modelToWorld(data.wo); //transform matrix from reflected space to normal space
             data.wo = r2n * wo;
-            return ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(wo.z(), ns_)) / ps;//kd_ * M_1_PI * pd +
+            return mat_->ks * (mat_->ns + 2) * 0.5 * M_1_PI * (pow(wo.z(), mat_->ns)) / ps;//kd_ * M_1_PI * pd +
         }
 
         return Vector3(0);
@@ -29,13 +29,13 @@ namespace pathtracing {
             return cosineSampleHemispherePDF(data);
         }
         if (rnd < pd + ps) {
-            return cosinePowerSampleHemispherePDF(data, ns_);
+            return cosinePowerSampleHemispherePDF(data, mat_->ns);
         }
         return 0.0;
     }
 
     Vector3 PhongBSDF::f(const BSDFRecord &data) const {
         Vector3 wr = data.wi.reflect_model_space(); //reflected ray, projected on surface normal space
-        return kd_ * M_1_PI * pd + ks_ * (ns_ + 2) * 0.5 * M_1_PI * (pow(fabs(Vector3::cos(wr, data.wo)), ns_)) * ps;
+        return mat_->kd * M_1_PI * pd + mat_->ks * (mat_->ns + 2) * 0.5 * M_1_PI * (pow(fabs(Vector3::cos(wr, data.wo)), mat_->ns)) * ps;
     }
 }

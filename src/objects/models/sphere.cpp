@@ -2,8 +2,8 @@
 #include "../../utils/sampler.hh"
 
 namespace pathtracing {
-    Sphere::Sphere(const Vector3 &position, shared_mat mat, float radius_)
-            : Object(position, mat), radius(radius_) {}
+    Sphere::Sphere(const Vector3 &position, shared_bsdf bsdf, float radius_)
+            : Object(position, bsdf), radius(radius_) {}
 //
 //    Sphere::Sphere(const Vector3 &position, shared_mat mat, const Vector3 &color, float radius_)
 //            : Object(position, mat, color), radius(radius_) {}

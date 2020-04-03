@@ -28,7 +28,7 @@ namespace pathtracing {
     void Scene::add_object(std::shared_ptr <Object> obj) {
         objects.push_back(obj);
 
-        if (obj->material->ke.max() > 0)
+        if (obj->bsdf->is_light())
             lights.push_back(obj);
     }
 

@@ -9,12 +9,15 @@
 //#include "../../utils/vertex.hh"
 #include "../../utils/matrix.hh"
 #include "../../utils/sampler.hh"
+#include "../material.hh"
 
 namespace pathtracing {
 
+    double computeFresnelReflectivity(double cosI, const double &n1, const double &n2);
 
     class BSDF {
     public:
+        BSDF(shared_mat mat) : mat_(mat) {}
 
         virtual Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const = 0;
 
@@ -22,6 +25,16 @@ namespace pathtracing {
 
         virtual Vector3 f(const BSDFRecord &data) const = 0;
 
+        Vector3 ka() const { return mat_->ka; }
+
+        Vector3 ke() const { return mat_->ke; }
+
+        double attenuation(const double &d2) const { return mat_->a * d2 + mat_->b * sqrt(d2) + mat_->c; }
+
+        bool is_light() const { return mat_->ke.max() > 0; }
+
+    protected:
+        shared_mat mat_;
     };
 
     using shared_bsdf = std::shared_ptr<BSDF>;
@@ -29,7 +42,7 @@ namespace pathtracing {
 
     class DiffuseBSDF : public BSDF {
     public:
-        DiffuseBSDF(const Vector3 &kd) : kd_(kd) {}
+        DiffuseBSDF(shared_mat mat) : BSDF(mat) {}
 
         Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const final;
 
@@ -37,13 +50,10 @@ namespace pathtracing {
 
         Vector3 f(const BSDFRecord &data) const final;
 
-    private:
-        Vector3 kd_;
     };
 
     class MirrorBSDF : public BSDF {
     public:
-        MirrorBSDF(const Vector3 &ks) : ks_(ks) {}
 
         Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const final;
 
@@ -51,21 +61,19 @@ namespace pathtracing {
 
         Vector3 f(const BSDFRecord &data) const final;
 
-    private:
-        Vector3 ks_;
+
     };
 
 
     class PhongBSDF : public BSDF {
     public:
-        PhongBSDF(const Vector3 &kd, const Vector3 &ks, const double &ns) : kd_(kd), ks_(ks), ns_(ns) {
-            Vector3 pds = kd + ks;
+        PhongBSDF(shared_mat mat) : BSDF(mat) {
+            Vector3 pds = mat_->kd + mat_->ks;
             double pr = pds.max();
-            pd = kd.sum() / pds.sum();
+            pd = mat_->kd.sum() / pds.sum();
             ps = pr - pd;
 
-            if (pd + ps > 1)
-            {
+            if (pd + ps > 1) {
                 std::cout << "[WARNING]: kd and ks violate the energy conservation. kd + ks must < 1\n";
             }
         }
@@ -79,15 +87,12 @@ namespace pathtracing {
     protected:
         double pd = 0.5;
         double ps = 0.5;
-        Vector3 kd_;
-        Vector3 ks_;
-        double ns_;
     };
 
 
     class BlinnPhongBSDF : public PhongBSDF {
     public:
-        BlinnPhongBSDF(const Vector3 &kd, const Vector3 &ks, const double &ns) : PhongBSDF(kd, ks, ns) {}
+        BlinnPhongBSDF(shared_mat mat) : PhongBSDF(mat) {}
 
         Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const final;
 

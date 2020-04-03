@@ -3,8 +3,8 @@
 
 namespace pathtracing {
 
-    TriangleMesh::TriangleMesh(const Vector3 &position, shared_mat mat, TriVector &triangles_, const Vector3 &scale_)
-            : Object(position, mat), scale(scale_), triangles(triangles_) {}
+    TriangleMesh::TriangleMesh(const Vector3 &position, shared_bsdf bsdf, TriVector &triangles_, const Vector3 &scale_)
+            : Object(position, bsdf), scale(scale_), triangles(triangles_) {}
 //
 //    TriangleMesh::TriangleMesh(const Vector3 &position, shared_mat mat, const Vector3 &color,
 //                               TriVector &triangles_, const Vector3 &scale_)
