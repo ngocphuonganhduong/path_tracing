@@ -7,8 +7,10 @@
 namespace pathtracing
 {
     namespace objl {
-        
-        int Loader::load(std::string filename)
+        /* We suppose that a .obj file describes only one object of order 3.
+           => load_object() creates a Triangle Mesh. 
+       */
+        int Loader::load_object(std::string filename, TriVector& t)
         {
             std::ifstream file(filename);
 
@@ -18,6 +20,9 @@ namespace pathtracing
                 return -1;
             }
 
+            std::vector<Vector3> Vertices;
+            std::vector<Face> Faces;
+            
             std::string currline;
 
             while (std::getline(file, currline))
@@ -44,17 +49,16 @@ namespace pathtracing
                 {
                     unsigned int i1, i2, i3;
                     iss >> i1 >> i2 >> i3;
-                    Faces.push_back(Face({i1, i2, i3}));
+                    Faces.push_back(Face({i1 - 1 , i2 - 1, i3 - 1}));
                 }
-
-                if (token.compare("g") == 0)
-                {
-                    // FIXME : Define an object -> create the triangle mesh before the other "g" if there is any
-                }
-                
-                // FIXME : Create objects -> a face is a triangle, an object a triangle mesh
             }
 
+            for (auto i = Faces.begin(); i != Faces.end(); ++i)
+            {
+                t.push_back(Triangle({ Vertices[(*i).index[0]],
+                                       Vertices[(*i).index[1]],
+                                       Vertices[(*i).index[2]] }));
+            }
             return 1;
         }
     }

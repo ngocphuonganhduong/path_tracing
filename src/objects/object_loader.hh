@@ -17,11 +17,7 @@ namespace pathtracing
             Loader()
             {}
 
-            int load(std::string filename);
-
-        private:
-            std::vector<Vector3> Vertices;
-            std::vector<Face> Faces;
+            int load_object(std::string filename, TriVector& t);
         };
 
     }

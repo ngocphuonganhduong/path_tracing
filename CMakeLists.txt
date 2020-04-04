@@ -8,7 +8,7 @@ set(SOURCE
         src/utils/sampler.cpp
         src/utils/sampler.hh
         src/objects/bsdf/bsdf.hh
-        src/objects/bsdf/bsdf.cpp
+       # src/objects/bsdf/bsdf.cpp
         src/objects/bsdf/diffuse.cpp
         src/objects/bsdf/mirror.cpp
         src/objects/bsdf/phong.cpp
