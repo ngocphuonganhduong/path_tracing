@@ -56,17 +56,17 @@ namespace pathtracing {
     //TRIANGLE MESH
     typedef struct {
         Vector3 p[3];
+    
+        void scale(const Vector3 &scale);
+        void rotate(const Vector3 &rotation);
     } Triangle;
-
-    Triangle operator*(const Triangle &v1, const Vector3 &scale);
 
     using TriVector = std::vector<Triangle>;
 
     class TriangleMesh : public Object {
     public:
         TriangleMesh(const Vector3 &position, shared_bsdf bsdf, TriVector &triangles,
-                     const Vector3 &scale);
-
+                     const Vector3 &scale, const Vector3 &rotation);
 
         double sampleSurfacePositionPDF() const;
 
@@ -80,7 +80,6 @@ namespace pathtracing {
         bool hit(const Ray &r, HitRecord &hit_data,
                  const Triangle &tri) const;
 
-        Vector3 scale;
         TriVector triangles;
     };
 

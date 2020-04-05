@@ -26,6 +26,20 @@ namespace pathtracing {
             return rows[0] * c.x() + rows[1] * c.y() + rows[2] * c.z();
         }
 
+        Vector3 mult_vector3(const Vector3 &v)
+        {
+            Vector3 res;
+            
+            for (int i = 0; i < 3; i++)
+            {
+                res[i] = rows[i].x() * v.x()
+                      + rows[i].y() * v.y()
+                      + rows[i].z() * v.z();
+            }
+            
+            return res;
+        }
+
         constexpr Matrix3x3 transpose() const {
             Matrix3x3 t_mat;
             const Matrix3x3 &mat = *this;

@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
     double d = 1;
 
     shared_mat mat = std::make_shared<Material>(ka, pink * 0.5, white * 0.5, 100);
-    auto o1 = std::make_shared<TriangleMesh>(Vector3(1.5, 11, -1), std::make_shared<PhongBSDF>(mat), t, Vector3(0.03, 0.03, 0.03));
+    auto o1 = std::make_shared<TriangleMesh>(Vector3(1.5, 11, -1), std::make_shared<PhongBSDF>(mat), t, Vector3(0.03, 0.03, 0.03), Vector3(0,90,0));
 
     shared_mat mat2 = std::make_shared<Material>(ka, yellow, white, 32);
     auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), std::make_shared<DiffuseBSDF>(mat2), 0.8);
