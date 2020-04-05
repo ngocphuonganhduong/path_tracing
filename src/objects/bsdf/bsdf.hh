@@ -13,27 +13,53 @@
 
 namespace pathtracing {
 
-    double computeFresnelReflectivity(double cosI, const double &n1, const double &n2);
+    enum BSDFTypeMask {
+        DIFFUSE = 1 << 1,
+        SPECULAR = 1 << 2,
+        REFRACTION = 1 << 3,
+    };
 
     class BSDF {
     public:
-        BSDF(shared_mat mat) : mat_(mat) {}
+        BSDF(shared_mat mat) : mat_(mat) {
+            if (mat_->ks.max() > 0) {
+                type |= SPECULAR;
+            }
+            if (mat_->kd.max() > 0) {
+                type |= DIFFUSE;
+            }
+        }
 
-        virtual Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const = 0;
+
+        Vector3 evalSampleBSDF(BSDFRecord &data, double &pdf) const;
+
+        Vector3 evalBSDF(BSDFRecord &data, double &pdf) const;
+
+        Vector3 f(const BSDFRecord &data, double &pdf) const;
 
         virtual double pdf(const BSDFRecord &data) const = 0;
 
-        virtual Vector3 f(const BSDFRecord &data) const = 0;
+        virtual Vector3 brdf(const BSDFRecord &data, double &pdf) const = 0;
+
+//        virtual Vector3 evalBRDF(BSDFRecord &data, double &pdf) const = 0;
 
         Vector3 ka() const { return mat_->ka; }
 
         Vector3 ke() const { return mat_->ke; }
 
-        double attenuation(const double &d2) const { return mat_->a * d2 + mat_->b * sqrt(d2) + mat_->c; }
+        double attenuation(const double &d2) const { return 1.0 / (mat_->a * d2 + mat_->b * sqrt(d2) + mat_->c); }
 
         bool is_light() const { return mat_->ke.max() > 0; }
 
+        bool is_diffuse() const { return (type & DIFFUSE) == DIFFUSE; }
+
+        static double computeFresnelReflectivity(double cosI, const double &n1, const double &n2);
+
+
     protected:
+        virtual Vector3 sampleBRDF(BSDFRecord &data, double &pdf) const = 0;
+
+        unsigned int type = 0;
         shared_mat mat_;
     };
 
@@ -42,24 +68,30 @@ namespace pathtracing {
 
     class DiffuseBSDF : public BSDF {
     public:
-        DiffuseBSDF(shared_mat mat) : BSDF(mat) {}
+        DiffuseBSDF(shared_mat mat) : BSDF(mat) {
+            type = DIFFUSE;
+        }
 
-        Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const final;
+        Vector3 sampleBRDF(BSDFRecord &data, double &pdf) const final;
 
         double pdf(const BSDFRecord &data) const final;
+//
 
-        Vector3 f(const BSDFRecord &data) const final;
-
+        Vector3 brdf(const BSDFRecord &data, double &pdf) const final;
+//        Vector3 evalBRDF(BSDFRecord &data, double &pdf) const final;
     };
 
     class MirrorBSDF : public BSDF {
     public:
+        MirrorBSDF(shared_mat mat) : BSDF(mat) {
+            type = SPECULAR;
+        }
 
-        Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const final;
+        Vector3 sampleBRDF(BSDFRecord &data, double &pdf) const final;
 
         double pdf(const BSDFRecord &data) const final;
 
-        Vector3 f(const BSDFRecord &data) const final;
+        Vector3 brdf(const BSDFRecord &data, double &pdf) const final;
 
 
     };
@@ -78,11 +110,11 @@ namespace pathtracing {
             }
         }
 
-        Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const;
+        Vector3 sampleBRDF(BSDFRecord &data, double &pdf) const final;
 
-        double pdf(const BSDFRecord &data) const;
+        double pdf(const BSDFRecord &data) const final;
 
-        Vector3 f(const BSDFRecord &data) const;
+        Vector3 brdf(const BSDFRecord &data, double &pdf) const final;
 
     protected:
         double pd = 0.5;
@@ -90,15 +122,28 @@ namespace pathtracing {
     };
 
 
-    class BlinnPhongBSDF : public PhongBSDF {
+    class BlinnPhongBSDF : public BSDF {
     public:
-        BlinnPhongBSDF(shared_mat mat) : PhongBSDF(mat) {}
+        BlinnPhongBSDF(shared_mat mat) : BSDF(mat) {
+            Vector3 pds = mat_->kd + mat_->ks;
+            double pr = pds.max();
+            pd = mat_->kd.sum() / pds.sum();
+            ps = mat_->ks.sum() / pds.sum();
 
-        Vector3 sampleBSDF(BSDFRecord &data, double &pdf) const final;
+            if (pr > 1) {
+                std::cout << "[WARNING]: kd and ks violate the energy conservation. kd + ks must < 1\n";
+            }
+        }
+
+        Vector3 sampleBRDF(BSDFRecord &data, double &pdf) const final;
 
         double pdf(const BSDFRecord &data) const final;
 
-        Vector3 f(const BSDFRecord &data) const final;
+        Vector3 brdf(const BSDFRecord &data, double &pdf) const final;
+
+    protected:
+        double pd = 0.5;
+        double ps = 0.5;
     };
 
     using shared_bsdf = std::shared_ptr<BSDF>;

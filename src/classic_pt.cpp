@@ -8,16 +8,27 @@ namespace pathtracing {
         Vector3 cumulative(1.0);
         double bsdf_pdf = 1.0;
         int niter = 0;
+
         while (true) {
             if (!scene.find_intersection(ray, hd)) {
                 break;
             }
 
+            hd.normal.normalize();
+            Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
+            Matrix3x3 w2m = m2w.transpose();
+            BSDFRecord br;
+
+            //wi : from hit point to eye vertex
+            br.wi = w2m * (ray.get_direction()) * -1;
             shared_bsdf bsdf = scene.objects[hd.obj_id]->bsdf;
+
+            //AMBIENT
             rad += scene.ambient_light * bsdf->ka() * cumulative;
 
-            if (bsdf->is_light()) {
-                rad += bsdf->ke() * cumulative;
+
+            if (bsdf->is_light()) { //le(x, theta_x)
+                rad +=  scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative;
             }
 
             if (niter >= max_idl_bounce) {
@@ -28,14 +39,8 @@ namespace pathtracing {
                 cumulative /= p;
             }
 
-            hd.normal.normalize();
-            Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
-            Matrix3x3 w2m = m2w.transpose();
-            BSDFRecord br;
 
-            br.wi = w2m * (ray.get_direction()) * -1;
-
-            Vector3 f = bsdf->sampleBSDF(br, bsdf_pdf); //obtain wo and pdf
+            cumulative *= bsdf->evalSampleBSDF(br, bsdf_pdf);
 
 //            if (debug_ray && debug) {
 //                std::cout << cumulative << " f:" << f << " pdf:" << bsdf_pdf << "\n";
@@ -43,7 +48,8 @@ namespace pathtracing {
 //                std::cout << "w2m " << w2m << " m2w" << m2w << "\n";
 //                std::cout << "rad " << rad << "\n";
 //            }
-            cumulative *= f * fabs(cos_theta(br.wo)) / bsdf_pdf;
+//            cumulative *= f * fabs(cos_theta(br.wo)) / bsdf_pdf;
+
             ray = Ray(hd.point, m2w * br.wo);
         }
         return rad;

@@ -9,9 +9,9 @@ namespace pathtracing {
 //            : Object(position, mat, color), radius(radius_) {}
 //
 
-    Vector3 Sphere::sampleSurfacePosition(double &pdf) const {
-        Vector3 surfaceNormal = uniformSampleSphere(pdf);
-        return position +  surfaceNormal * radius;
+    Vector3 Sphere::sampleSurfacePosition(double &pdf, Vector3& normal) const {
+        normal = uniformSampleSphere(pdf);
+        return position +  normal * radius;
     }
     double Sphere::sampleSurfacePositionPDF() const {
         return uniformSampleSpherePDF();

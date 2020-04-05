@@ -66,10 +66,10 @@ namespace pathtracing {
         return hit;
     }
 
-    Vector3 TriangleMesh::sampleSurfacePosition(double &pdf) const {
+    Vector3 TriangleMesh::sampleSurfacePosition(double &pdf, Vector3 &surfaceNormal) const {
         pdf = sampleSurfacePositionPDF();
         auto tri = triangles[round(drand48() * (triangles.size() - 1))];
-        Vector3 surfaceNormal = (tri.p[1] - tri.p[0]).cross(tri.p[2] - tri.p[0]);
+        surfaceNormal = (tri.p[1] - tri.p[0]).cross(tri.p[2] - tri.p[0]);
         surfaceNormal.normalize();
         return position + tri.p[0];
     }
@@ -77,7 +77,8 @@ namespace pathtracing {
     double TriangleMesh::sampleSurfacePositionPDF() const {
         return 1.0 / triangles.size();
     }
-    double  TriangleMesh::sampleDirectionPDF(const BSDFRecord& ) const {
+
+    double TriangleMesh::sampleDirectionPDF(const BSDFRecord &) const {
         return uniformSampleSpherePDF();
     }
 }

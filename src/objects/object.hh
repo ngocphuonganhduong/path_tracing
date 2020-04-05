@@ -14,10 +14,14 @@ namespace pathtracing {
 
         virtual bool hit(const Ray &, HitRecord &hit_data) const = 0;
 
-        virtual double sampleDirectionPDF(const BSDFRecord& data) const = 0;
+        virtual double sampleDirectionPDF(const BSDFRecord &data) const = 0;
+
         virtual double sampleSurfacePositionPDF() const = 0;
 
-        virtual Vector3 sampleSurfacePosition(double &pdf) const = 0;
+        virtual Vector3 sampleSurfacePosition(double &pdf, Vector3& normal) const = 0;
+
+        virtual Vector3 Le(const Vector3 &pos, const Vector3 &wo) const;
+
 
 //        Ray sampleLightRay(double &pdfForward, double &pdfBackward) const;
 //
@@ -38,8 +42,9 @@ namespace pathtracing {
 
         bool hit(const Ray &r, HitRecord &hit_data) const final;
 
-        double sampleDirectionPDF(const BSDFRecord& data) const final;
-        Vector3 sampleSurfacePosition(double &pdf) const final;
+        double sampleDirectionPDF(const BSDFRecord &data) const final;
+
+        Vector3 sampleSurfacePosition(double &pdf, Vector3& normal) const final;
 
         double sampleSurfacePositionPDF() const;
 
@@ -64,11 +69,12 @@ namespace pathtracing {
 
 
         double sampleSurfacePositionPDF() const;
-        double sampleDirectionPDF(const BSDFRecord& data) const final;
+
+        double sampleDirectionPDF(const BSDFRecord &data) const final;
 
         bool hit(const Ray &r, HitRecord &hit_data) const final;
 
-        Vector3 sampleSurfacePosition(double &pdf) const final;
+        Vector3 sampleSurfacePosition(double &pdf, Vector3& normal) const final;
 
     private:
         bool hit(const Ray &r, HitRecord &hit_data,
@@ -86,9 +92,12 @@ namespace pathtracing {
         bool hit(const Ray &r, HitRecord &hit_data) const final;
 
         double sampleSurfacePositionPDF() const;
-        double sampleDirectionPDF(const BSDFRecord& data) const final;
 
-        Vector3 sampleSurfacePosition(double &pdf) const;
+        double sampleDirectionPDF(const BSDFRecord &data) const final;
+
+        Vector3 sampleSurfacePosition(double &pdf, Vector3& normal) const;
+
+        Vector3 Le(const Vector3 &pos, const Vector3 &wo) const final;
 
 
     private:

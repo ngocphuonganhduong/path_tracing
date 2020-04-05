@@ -15,7 +15,7 @@ namespace pathtracing {
         return 1.0 / (halfSize * halfSize);
     }
 
-    double Square::sampleDirectionPDF(const BSDFRecord& data) const {
+    double Square::sampleDirectionPDF(const BSDFRecord &data) const {
         return cosineSampleHemispherePDF(data);
     }
 //    Vector3 Square::get_sample() const {
@@ -23,12 +23,11 @@ namespace pathtracing {
 //               + right * (-1 + 2 * drand48()) * halfSize;
 //    }
 
-    Vector3 Square::sampleSurfacePosition(double &pdf) const {
+    Vector3 Square::sampleSurfacePosition(double &pdf, Vector3 &surfaceNormal) const {
         pdf = 1.0 / (halfSize * halfSize);
-        Vector3 surfaceNormal = normal;
+        surfaceNormal = normal;
         return position + up * (-1 + 2 * drand48()) * halfSize + right * (-1 + 2 * drand48()) * halfSize;
     }
-
 
 
     bool Square::hit(const Ray &r, HitRecord &hit_data) const {
@@ -52,5 +51,11 @@ namespace pathtracing {
             }
         }
         return false;
+    }
+
+    Vector3 Square::Le(const Vector3 &, const Vector3 &wo) const {
+        if (cos_theta(wo) <= 0)
+            return Vector3(0.0);
+        return bsdf->ke();
     }
 }

@@ -4,7 +4,8 @@ namespace pathtracing {
     /**
      * SAMPLING MIRROR EFFECT
      * **/
-    Vector3 MirrorBSDF::f(const BSDFRecord &) const {
+    Vector3 MirrorBSDF::brdf(const BSDFRecord &data, double& pdf) const {
+        pdf = cos_theta(data.wo);
         //mirror cannot be brightened by the light
         return Vector3(0.0);
     }
@@ -13,7 +14,7 @@ namespace pathtracing {
         return cos_theta(data.wo);
     }
 
-    Vector3 MirrorBSDF::sampleBSDF(BSDFRecord &data, double &pdf) const {
+    Vector3 MirrorBSDF::sampleBRDF(BSDFRecord &data, double &pdf) const {
         data.wo = data.wi.reflect_model_space();
         pdf = 1.0;
         return mat_->ks;

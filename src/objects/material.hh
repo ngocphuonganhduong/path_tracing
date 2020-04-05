@@ -11,20 +11,34 @@ namespace pathtracing {
     public:
         Material(const Vector3 &ka_, const Vector3 &kd_, const Vector3 &ks_, double ns_);
 
-        Material(const Vector3 &ka_, const Vector3 &kd_, const Vector3 &ks_, double ns_, double ni_,
-                 double d_);
+        Material(const Vector3 &ka_, const Vector3 &kd_, const Vector3 &ks_, double ns_, double ni_);
+
 
         void set_emission(const Vector3 &ke_, double a_, double b_, double c_);
+        void set_transparency(const double& opacity, const Vector3& filter_color);
 
         Vector3 ka;
         Vector3 kd;
+
+        /**
+         * Specular reflection
+         */
         Vector3 ks;
         double ns = 1; //shininess
+
+        /**
+         * Refraction
+         */
         double ni = 1; // optical density (aka index of refraction
+
+        /**
+         * Transparency
+         */
         double d = 1; //opacity
+        Vector3 tf; //transparent color filter
+
         double sharpness = 60; //ranging from 0 to 1000
 
-        //Control the intensity of diffuse = 1.0/f(distance);
         //f(d) = a*distance*distance + b*distance + c
         Vector3 ke;
         double a = 0;

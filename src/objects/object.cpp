@@ -1,11 +1,17 @@
 #include "../render.hh"
 #include "../utils/sampler.hh"
+#include "object.hh"
+
 
 namespace pathtracing {
 
 
     Object::Object(const Vector3 &pos_, shared_bsdf bsdf_)
             : position(pos_), bsdf(bsdf_) {}
+
+    Vector3 Object::Le(const Vector3 &pos, const Vector3 &direction) const {
+        return bsdf->ke();
+    }
 
 
 //    Ray Object::sampleLightRay(double &pdfForward, double &pdfBackward) const {

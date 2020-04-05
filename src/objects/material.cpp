@@ -7,8 +7,7 @@
 
 namespace pathtracing {
     Material::Material(const Vector3 &ka_, const Vector3 &kd_, const Vector3 &ks_, double ns_,
-                       double ni_, double d_) : ka(ka_), kd(kd_), ks(ks_), ns(ns_), ni(ni_),
-                                                d(d_) {
+                       double ni_) : ka(ka_), kd(kd_), ks(ks_), ns(ns_), ni(ni_) {
     }
 
     Material::Material(const Vector3 &ka_, const Vector3 &kd_, const Vector3 &ks_, double ns_) : ka(ka_), kd(kd_),
@@ -19,5 +18,10 @@ namespace pathtracing {
         a = a_;
         b = b_;
         c = c_;
+    }
+
+    void Material::set_transparency(const double &opacity, const Vector3 &transparent_filter_color) {
+        d = opacity;
+        tf = transparent_filter_color;
     }
 }
