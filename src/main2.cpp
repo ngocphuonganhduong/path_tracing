@@ -34,20 +34,20 @@ int main(int argc, char **argv) {
     double kr = 0.5;
     double d = 1;
 
-    shared_mat mat = std::make_shared<Material>(ka, pink * 0.5, white * 0.5, 100);
+    shared_mat mat = std::make_shared<Material>(ka, pink , white, 32);
     auto o1 = std::make_shared<TriangleMesh>(Vector3(1.5, 11, -1), std::make_shared<PhongBSDF>(mat), t, Vector3(0.03, 0.03, 0.03), Vector3(0,90,0));
 
     shared_mat mat2 = std::make_shared<Material>(ka, yellow, white, 32);
     auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), std::make_shared<DiffuseBSDF>(mat2), 0.8);
 
     shared_mat mat_light = std::make_shared<Material>(ka, white, ks, ns);
-    mat_light->set_emission(white * 0.9, 0.05, 1, 1);
+    mat_light->set_emission(white * 4, 0.2, 0, 1);
 
 
-    shared_obj area_light = std::make_shared<Square>(Vector3(0, distance - 6, half_l - 0.01),
+    shared_obj area_light = std::make_shared<Square>(Vector3(0, distance - 4, half_l - 0.1),
                                                      std::make_shared<DiffuseBSDF>(mat_light), Vector3(0, 0, -1),
                                                      Vector3(0, 1, 0),
-                                                     2);
+                                                     1.5);
 
     //WALL
     shared_mat mat_f = std::make_shared<Material>(ka, green, ks, 32);

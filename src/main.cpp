@@ -29,8 +29,6 @@ int main(int argc, char **argv) {
     //OBJECT
     //type, ka, kd, ks, ns, ni, d
     shared_mat mat = std::make_shared<Material>(ka, pink , white, 32, 1.125);
-    mat->set_transparency(1, white);
-
     auto o1 = std::make_shared<Sphere>(Vector3(1.5, 11, -2.5), std::make_shared<PhongBSDF>(mat), 1.4);
 
     shared_mat mat2 = std::make_shared<Material>(ka, yellow, black, 32);
