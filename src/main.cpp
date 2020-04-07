@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
     Vector3 pink(1, 0.6, 0.8);
     Vector3 white(1, 1, 1);
     Vector3 black(0, 0, 0);
-    Vector3 yellow(1, 1, 0.2);
+    Vector3 yellow(1, 1, 0);
     Vector3 cyan(0, 1, 1);
     Vector3 purple(0.7, 0, 1);
     Vector3 wall_color(0.95, 0.92, 0.97);
@@ -28,13 +28,14 @@ int main(int argc, char **argv) {
 
     //OBJECT
     //type, ka, kd, ks, ns, ni, d
-    shared_mat mat = std::make_shared<Material>(ka, pink , white, 32, 1.6);
+    shared_mat mat = std::make_shared<Material>(ka, pink , white, 32, 1.125);
     mat->set_transparency(1, white);
 
-    auto o1 = std::make_shared<Sphere>(Vector3(1.5, 11, -2.5), std::make_shared<BlinnPhongBSDF>(mat), 1.4);
+    auto o1 = std::make_shared<Sphere>(Vector3(1.5, 11, -2.5), std::make_shared<PhongBSDF>(mat), 1.4);
 
-    shared_mat mat2 = std::make_shared<Material>(ka, yellow, white, 32);
-    auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), std::make_shared<DiffuseBSDF>(mat2), 0.8);
+    shared_mat mat2 = std::make_shared<Material>(ka, yellow, black, 32);
+    mat2->set_transparency(0.5, white);
+    auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), std::make_shared<DiffuseBSDF>(mat2), 1);
 
     shared_mat mat_light = std::make_shared<Material>(ka, white, ks, ns);
     mat_light->set_emission(white * 5, 0.2, 0, 1);
@@ -45,7 +46,7 @@ int main(int argc, char **argv) {
                                                      Vector3(0, 1, 0),
                                                      1.5);
 
-    //WALL
+    //WALLVector3(1, 0.6, 0.15)
     shared_mat mat_f = std::make_shared<Material>(ka, green, ks, 32);
     shared_obj floor = std::make_shared<Square>(Vector3(0, distance - half_l,
                                                         -half_l),

@@ -6,15 +6,19 @@
 namespace pathtracing {
 
     double BSDF::computeFresnelReflectivity(double cosI, const double &n1, const double &n2) {
-        const double sinT = (n1 / n2) * sqrt(std::max(0.0, 1 - cosI * cosI));
-        if (sinT > 1)
-            return 1.0; //total internal reflection
-        double cosT = sqrt(std::max(0.0, 1 - sinT * sinT));
-        cosI = fabs(cosI);
+        double R0 = (n1 - n2) / (n1 + n2);
+        R0 *= R0;
 
-        float Rs = ((n2 * cosI) - (n1 * cosT)) / ((n2 * cosI) + (n1 * cosT));
-        float Rp = ((n1 * cosI) - (n2 * cosT)) / ((n1 * cosI) + (n2 * cosT));
-        return (Rs * Rs + Rp * Rp) * 0.5;
+        const double n = n1 / n2;
+        if (n1 > n2) {
+            double sinT2 = n * n * (1 - cosI * cosI);
+            if (sinT2 > 1.0)
+                return 1.0;//total internal reflection
+            cosI = sqrt(1.0 - sinT2);
+        }
+        const double f = 1.0 - cosI;
+        return R0 + (1.0 - R0) * f * f * f * f * f; //r0 + (1.0 - r0) * f^5
+
     }
 
     Vector3 BSDF::evalSampleBSDF(BSDFRecord &data, double &pdf) const {
@@ -22,13 +26,33 @@ namespace pathtracing {
         Vector3 f;
         if (rnd < mat_->d) //bsdf
         {
-            f = sampleBRDF(data, pdf);
-            f *= fabs(cos_theta(data.wo)) / pdf; //wo here is direction from light to hit point.
+            f = sampleBRDF(data, pdf) * mat_->d;
             pdf *= mat_->d;
+            f *= fabs(cos_theta(data.wo)) / pdf; //wo here is direction from light to hit point.
+
+//            if (!data.wi.refract(data.wo, 1.0 / mat_->ni)) {
+//                f = sampleBRDF(data, pdf) * mat_->d;
+//                pdf *= mat_->d;
+//                f *= fabs(cos_theta(data.wo)) / pdf; //wo here is direction from light to hit point.
+//
+//            } else {
+//                double kr = computeFresnelReflectivity(cos_theta(data.wi), 1, mat_->ni);
+//                double rnd = drand48();
+//
+//                if (rnd < kr) {
+//                    f = sampleBRDF(data, pdf) * mat_->d;
+//                    pdf *= mat_->d;
+//                    f *= fabs(cos_theta(data.wo)) / pdf; //wo here is direction from light to hit point.
+//                } else {
+//                    f = Vector3(0);
+//                    pdf = 1.0;
+//                }
+//            }
+
         } else {
-            f = mat_->tf;
+            f = mat_->tf; // * 1 - mat_->d / pdf = 1.0
             data.wo = data.wi * -1;
-            pdf *= 1 - mat_->d;
+            pdf = 1 - mat_->d;
         }
         return f;
 

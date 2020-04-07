@@ -12,7 +12,7 @@
 namespace pathtracing {
     class Vector3 {
     private:
-        double val[3]{0,0,0};
+        double val[3]{0, 0, 0};
 
     public:
         constexpr double x() const noexcept {
@@ -33,10 +33,11 @@ namespace pathtracing {
 
         constexpr Vector3(double c) noexcept : val{c, c, c} {}
 
-        constexpr const double& operator()(unsigned int col) const {
+        constexpr const double &operator()(unsigned int col) const {
             return val[col];
         }
-        constexpr double& operator[](unsigned int col) {
+
+        constexpr double &operator[](unsigned int col) {
             return val[col];
         }
 
@@ -126,15 +127,20 @@ namespace pathtracing {
             return Vector3(-val[0], -val[1], val[2]);;
         }
 
-//        constexpr std::optional<Vector3> refract(const Vector3 &normal,
-//                                                 double n) const noexcept {
-//            const double cosI = -normal.dot(*this);
-//            const double sinT2 = n * n * (1 - cosI * cosI);
-//            if (sinT2 > 1)
-//                return std::nullopt;
-//            const double cosT = sqrt(1 - sinT2);
-//            return *this * n + normal * (n * cosI - cosT);
-//        }
+        constexpr bool refract(Vector3 &wo, double n) const noexcept {
+            if (val[2] <= 0)
+                n = 1.0 / n;
+
+            const double sinT2 = n * n * (1 - val[2] * val[2]);
+            if (sinT2 >= 1)
+                return false;
+            double cosT = sqrt(1 - sinT2);
+//            if (val[2] <= 0)
+//                cosT *= -1;
+            // - n(x,y, cosI) + (0,0,n *cosI - cosT);
+            wo = Vector3(-val[0] * n, -val[1] * n, -cosT);
+            return true;
+        }
 
         constexpr void clamp(double min, double max) noexcept {
             val[0] = std::clamp(val[0], min, max);

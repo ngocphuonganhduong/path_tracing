@@ -30,8 +30,7 @@ namespace pathtracing {
             BSDFRecord br;
             br.wi = w2m * (ray.get_direction().normalize()) * -1;
 
-            if (bsdf->is_light())
-            {
+            if (bsdf->is_light()) {
                 light_pdf = scene.objects[hd.obj_id]->sampleSurfacePositionPDF();
                 rad += scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative * bsdf_pdf / (bsdf_pdf + light_pdf);
             }
@@ -44,7 +43,22 @@ namespace pathtracing {
                 double d2 = l2o.norm_square();
                 l2o.normalize();
                 HitRecord tem;
-                if (scene.find_intersection(Ray(pos + l2o * EPSILON, l2o), tem) && tem.obj_id == hd.obj_id) {
+                Vector3 filter_opacity(1.0);
+                tem.point = pos;
+                while (true) {
+                    if (!scene.find_intersection(Ray(tem.point + l2o * EPSILON, l2o), tem)) {
+                        filter_opacity = Vector3(0.0);
+                        break;
+                    }
+                    if (tem.obj_id == hd.obj_id) {
+                        break;
+                    } else {
+                        filter_opacity *= scene.objects[tem.obj_id]->bsdf->filter_opacity();
+                    }
+                    if (filter_opacity.max() < EPSILON)
+                        break;
+                }
+                if (filter_opacity.max() > EPSILON) {
                     br.wo = w2m * (l2o.normalize() * -1); //object to light
                     if (d2 < 1) // avoid too small
                         d2 = 1;
@@ -52,11 +66,11 @@ namespace pathtracing {
                     Matrix3x3 w2l = l2w.transpose();
                     Vector3 l2o_lightSpace = w2l * l2o;
 
-                    Vector3 color = light->Le(pos, l2o_lightSpace) * bsdf->f(br, bsdf_pdf) * cumulative;
-                    color *= std::max(0.0, cos_theta(br.wo)) * std::max(0.0, cos_theta(l2o_lightSpace));
-                    color *= light->bsdf->attenuation(d2);
-                    color /= (bsdf_pdf + light_pdf); //weights
-                    rad += color;
+                    filter_opacity *= light->Le(pos, l2o_lightSpace) * bsdf->f(br, bsdf_pdf) * cumulative;
+                    filter_opacity *= std::max(0.0, cos_theta(br.wo)) * std::max(0.0, cos_theta(l2o_lightSpace));
+                    filter_opacity *= light->bsdf->attenuation(d2);
+                    filter_opacity /= (bsdf_pdf + light_pdf); //weights
+                    rad += filter_opacity;
                 }
             }
 

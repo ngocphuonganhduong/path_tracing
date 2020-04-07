@@ -29,13 +29,13 @@ namespace pathtracing {
         /**
          * Refraction
          */
-        double ni = 1; // optical density (aka index of refraction
+        double ni = 0.01; // optical density (aka index of refraction
 
         /**
          * Transparency
          */
         double d = 1; //opacity
-        Vector3 tf; //transparent color filter
+        Vector3 tf = Vector3(1.0); //transparent color filter
 
         double sharpness = 60; //ranging from 0 to 1000
 

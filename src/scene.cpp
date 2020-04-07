@@ -36,8 +36,6 @@ namespace pathtracing {
         float u = (float(height) - 2 * y) / float(height);
         float r = (2 * x - float(width)) / float(width);
         Vector3 pos = mid + cam.up * u + cam.right * r;
-        if (debug && debug_ray)
-            std::cout << pos << " - " << cam.pos << "\n";
         Vector3 direction = pos - cam.pos; //cam to pos
         return Ray(cam.pos, direction);
     }

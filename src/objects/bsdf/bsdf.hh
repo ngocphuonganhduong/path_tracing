@@ -46,6 +46,7 @@ namespace pathtracing {
         Vector3 ka() const { return mat_->ka; }
 
         Vector3 ke() const { return mat_->ke; }
+        Vector3 filter_opacity() const { return mat_->tf * (1- mat_->d); }
 
         double attenuation(const double &d2) const { return 1.0 / (mat_->a * d2 + mat_->b * sqrt(d2) + mat_->c); }
 
