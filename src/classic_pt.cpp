@@ -51,6 +51,7 @@ namespace pathtracing {
 //            cumulative *= f * fabs(cos_theta(br.wo)) / bsdf_pdf;
 
             ray = Ray(hd.point, m2w * br.wo);
+            ++niter;
         }
         return rad;
     }

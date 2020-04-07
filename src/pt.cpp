@@ -86,7 +86,7 @@ namespace pathtracing {
 
             br.wo = m2w * br.wo;
             ray = Ray(hd.point + br.wo * EPSILON, br.wo);
-
+            ++niter;
         }
 
         return rad;

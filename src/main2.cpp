@@ -12,9 +12,9 @@ int main(int argc, char **argv) {
     loader.load_object("../src/objects/assets/diamond.obj", t);
     
     //color
-    Vector3 red(1, 0, 0);
-    Vector3 green(0, 1, 0);
-    Vector3 blue(0, 0, 1);
+    Vector3 red(1, 0.4, 0.4);
+    Vector3 green(0.4, 1, 0.4);
+    Vector3 blue(0.4, 0.4, 1);
     Vector3 pink(1, 0.6, 0.8);
     Vector3 white(1, 1, 1);
     Vector3 black(0, 0, 0);
@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     Vector3 cyan(0, 1, 1);
     Vector3 purple(0.7, 0, 1);
     Vector3 wall_color(0.95, 0.92, 0.97);
-    double half_l = 4;
+    double half_l = 4.2;
     double distance = 16;
 
 
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
     auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), std::make_shared<DiffuseBSDF>(mat2), 0.8);
 
     shared_mat mat_light = std::make_shared<Material>(ka, white, ks, ns);
-    mat_light->set_emission(white * 4, 0.2, 0, 1);
+    mat_light->set_emission(white * 5, 0.2, 0, 1);
 
 
     shared_obj area_light = std::make_shared<Square>(Vector3(0, distance - 4, half_l - 0.1),
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
                                                   Vector3(0, 0, 1),
                                                   half_l);
     Camera cam(Vector3(0, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1), 60);
-    Scene scene(500, 450, cam, Vector3(0.2, 0.2, 0.2));
+    Scene scene(500, 500, cam, Vector3(0.2, 0.2, 0.2));
 
     scene.add_object(o1);
     scene.add_object(o2);

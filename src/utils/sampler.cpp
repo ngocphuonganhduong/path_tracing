@@ -10,7 +10,7 @@ namespace pathtracing {
         double sinTheta = sqrt(1 - cosTheta * cosTheta);
         double phi = 2.0 * M_PI * random_uniform();
         pdf = cosTheta * M_1_PI;
-        return Vector3(sinTheta * cosf(phi), sinTheta * sinf(phi), cosTheta);
+        return Vector3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
     }
 
     double cosineSampleHemispherePDF(const BSDFRecord &data) {
@@ -29,12 +29,12 @@ namespace pathtracing {
      * @return Direction vector
      */
     Vector3 cosinePowerSampleHemisphere(double &pdf, const double &n) {
-        // specular + glossy
+        // specular lobe
         // (x, y, z) = (sin(theta)cos(phi), sin(theta)sin(phi), cos(theta))
         double cosTheta = pow(random_uniform(), 1 / (n + 1));
-        double sin_theta = sqrt(1 - cosTheta * cosTheta);
+        double sinTheta = sqrt(1 - cosTheta * cosTheta);
         double phi = 2 * M_PI * random_uniform();
-        Vector3 wo(sin_theta * cos(phi), sin_theta * sin(phi), cosTheta);
+        Vector3 wo(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
         pdf = (n + 1.0) * 0.5 * M_1_PI * pow(cosTheta, n);
         return wo;
     }
