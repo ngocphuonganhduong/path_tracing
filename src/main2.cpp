@@ -8,8 +8,10 @@ int main(int argc, char **argv) {
     
     objl::Loader loader;
     TriVector t;
+    TriVector t2;
 
-    loader.load_object("../src/objects/assets/diamond.obj", t);
+    loader.load_object("../src/objects/assets/box.obj", t);
+    loader.load_object("../src/objects/assets/tall_box.obj", t2);
     
     //color
     Vector3 red(1, 0.4, 0.4);
@@ -35,10 +37,12 @@ int main(int argc, char **argv) {
     double d = 1;
 
     shared_mat mat = std::make_shared<Material>(ka, pink , white, 32);
-    auto o1 = std::make_shared<TriangleMesh>(Vector3(1.5, 11, -1), std::make_shared<PhongBSDF>(mat), t, Vector3(0.03, 0.03, 0.03), Vector3(0,90,0));
+    // the small box
+    auto o1 = std::make_shared<TriangleMesh>(Vector3(1.5, 10, -3), std::make_shared<PhongBSDF>(mat), t, Vector3(1.5,1.5,1.5), Vector3(0,0,-30));
 
     shared_mat mat2 = std::make_shared<Material>(ka, yellow, white, 32);
-    auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), std::make_shared<DiffuseBSDF>(mat2), 0.8);
+    // the tall box
+    auto o2 = std::make_shared<TriangleMesh>(Vector3(-2, 12, -2), std::make_shared<PhongBSDF>(mat), t2, Vector3(1.5,1.5,1.5), Vector3(0,0,30));
 
     shared_mat mat_light = std::make_shared<Material>(ka, white, ks, ns);
     mat_light->set_emission(white * 5, 0.2, 0, 1);
