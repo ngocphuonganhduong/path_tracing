@@ -23,14 +23,14 @@ namespace pathtracing {
         //          |  -sin(beta)                   cos(beta)sin(gamma)                                     cos(beta)cos(gamma)                 |
 
         // Convert degrees to radians
-        Vector3 rad(rot.z() * M_PI / 180, rot.y() * M_PI / 180, rot.z() * M_PI / 180);
+        Vector3 rad(rot.x() * M_PI / 180, rot.y() * M_PI / 180, rot.z() * M_PI / 180);
 
         Matrix3x3 R;
         R[0] = Vector3(cos(rad.z()) * cos(rad.y()),
                        cos(rad.z()) * sin(rad.y()) * sin(rad.x()) - sin(rad.z()) * cos(rad.x()),
                        cos(rad.z()) * sin(rad.y()) * cos(rad.x()) + sin(rad.z()) * sin(rad.x()));
         
-        R[1] = Vector3(sin(rad.z()) * sin(rad.y()),
+        R[1] = Vector3(sin(rad.z()) * cos(rad.y()),
                        sin(rad.z()) * sin(rad.y()) * sin(rad.x()) + cos(rad.z()) * cos(rad.x()),
                        sin(rad.z()) * sin(rad.y()) * cos(rad.x()) - cos(rad.z()) * sin(rad.x()));
 
