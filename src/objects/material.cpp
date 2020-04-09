@@ -24,4 +24,8 @@ namespace pathtracing {
         d = opacity;
         tf = transparent_filter_color;
     }
+    void Material::set_transparency(const double &opacity) {
+        d = opacity;
+        tf = kd;
+    }
 }

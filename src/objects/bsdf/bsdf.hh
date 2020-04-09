@@ -104,7 +104,7 @@ namespace pathtracing {
             Vector3 pds = mat_->kd + mat_->ks;
             double pr = pds.max();
             pd = mat_->kd.sum() / pds.sum();
-            ps = pr - pd;
+            ps = mat_->ks.sum() / pds.sum();
 
             if (pd + ps > 1) {
                 std::cout << "[WARNING]: kd and ks violate the energy conservation. kd + ks must < 1\n";

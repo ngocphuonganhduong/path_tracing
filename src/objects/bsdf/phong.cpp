@@ -39,12 +39,12 @@ namespace pathtracing {
     Vector3 PhongBSDF::brdf(const BSDFRecord &data, double& pdf) const {
         double rnd = random_uniform();
         if (rnd < pd) {
-            pdf = cosineSampleHemispherePDF(data) / pd;
+            pdf = cosineSampleHemispherePDF(data) * pd;
             return mat_->kd * M_1_PI * pd;
         }
         if (rnd < pd + ps) {
             Vector3 wr = data.wi.reflect_model_space(); //reflected ray, projected on surface normal space
-            pdf =  cosinePowerSampleHemispherePDF(data, mat_->ns) / ps;
+            pdf =  cosinePowerSampleHemispherePDF(data, mat_->ns) * ps;
             return mat_->ks * (mat_->ns + 2) * 0.5 * M_1_PI * (pow(fabs(Vector3::cos(wr, data.wo)), mat_->ns)) * ps;
         }
         pdf = 1 / (1 - pd - ps);

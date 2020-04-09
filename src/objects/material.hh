@@ -16,6 +16,7 @@ namespace pathtracing {
 
         void set_emission(const Vector3 &ke_, double a_, double b_, double c_);
         void set_transparency(const double& opacity, const Vector3& filter_color);
+        void set_transparency(const double& opacity);
 
         Vector3 ka;
         Vector3 kd;
