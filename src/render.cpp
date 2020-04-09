@@ -18,8 +18,8 @@ namespace pathtracing {
 
         pixels = new uint8_t[scene_.width * scene_.height * 3];
         max_dl_bounce = 1;
-        max_idl_bounce = 5;
-        terminate_param = 0.0;
+        max_idl_bounce = 10;
+        terminate_param = 0.8;
         max_intensity = 0.9;
         filename = "output.ppm";
         mode = Mode::PT;
