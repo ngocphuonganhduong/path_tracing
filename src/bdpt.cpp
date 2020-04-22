@@ -2,184 +2,345 @@
 #include "utils/matrix.hh"
 
 namespace pathtracing {
+    Vector3 Pathtracer::trace_bdpt(Ray ray) {
+        //x0 -> x1 -> ... -> xi -> yj -> ... y1 -> y0
+        //x0: light source
+        //y0: first intersection with from camera to scene
+        //skip case light tracing until hit camera aperture, which is <<)
+        //(skip case j=-1, j=0 in the subject, NOT implement classic light tracing because the current camera is a pinhole camera)
+        //It's impossible for a random light ray from a light source to hit a point TT
+
+        //case i=-1 (no light vertex): path tracing
+        //case
+        //
+        //estimator = sum of Wij * Cij
+        Vector3 rad(0.0);
+        std::vector<Vertex> eye_path = generate_eye_path(ray); //not contain camera point
+        if (eye_path.size() < 1) //we dont implement classic light tracer because of our pinhole camera
+            return rad;
+
+        std::vector<Vertex> light_path = generate_light_path();
+
+        HitRecord hd;
+        Vector3 c; //contribution
+        Vector3 w; //weight
+        int i;
+
+        int ep_size = eye_path.size();
+        int lp_size = light_path.size();
+        double pdf;
+        BSDFRecord br;
+
+        int max_path_length = ep_size + lp_size;
+
+        double d2;
+        double path_pdf;
+        double sum_path_pdf;
+        Vector3 s_rad;
+        //max_path_length: count from y0
+#ifdef DEBUG_RAY
+        std::string str;
+        str += "Light p: " + std::to_string(lp_size) + "  Eye P: " + std::to_string(ep_size) + "\n";
+#endif
+
+        for (int s = 0; s <= max_path_length; ++s) {
+#ifdef DEBUG_RAY
+            str += "s=" + std::to_string(s) + "\n";
+#endif
+
+            //case: i=-1, j > 0: classic pathtracer
+            //s=4: //y3-y2-y1-y0-camera
 
 
-    Vector3 Pathtracer::computeDirectLighting(const Paths &lightPaths, const HitRecord &hd, const Vector3 &wo) {
-        Vector3 rad;
-        HitRecord tem;
-        Vector3 li;
-        for (auto path: lightPaths) {
-            Vector3 wi = hd.point - path[0].data.point; //From light vertex to obj
-            double d2 = wi.norm_square();
-            wi.normalize();
-            if (scene.find_intersection(Ray(path[0].data.point + wi * EPSILON, wi), tem) && tem.obj_id == hd.obj_id) {
-                //li * brdf * cos(normal, w out)
-//                if (debug && debug_ray) {
-//                    std::cout << "light" << path[0].li << "\n";
-//                    std::cout << "brdf" << scene.objects[hd.obj_id]->material->brdf(wi, wo) << "\n";
-//                    std::cout << "normal " << hd.normal << "\n";
-//                    std::cout << "wi " << wi << "\n";
-//                    std::cout << "cos theta" << Vector3::cos(hd.normal, wi) << "\n";
-//                }
-                rad += scene.objects[hd.obj_id]->phong_lighting(li, wi * -1, wo, hd.normal, d2);
-//                rad += path[0].li * scene.objects[hd.obj_id]->material->bsdf->f(wi, wo) * Vector3::cos(hd.normal, wi) / d2;
-            }
+            //classic path tracer: i=-1
+            //bdpt
+            sum_path_pdf = 0;
+            s_rad = Vector3(0.0);
+            for (int j = 0; j <= s; ++j) { //eye
+                i = s - j - 1; //
+                //ex: s=0: (i,j)=-1, 0;
+                //ex: s=1: (i,j)=(0, 1)
+                //ex: s=4, (i,j)=(2,0) x0-x1-x2-y0
+                //ex: s=4, (i,j)=(1,1) x0-x1-y1-y0
+                //ex: s=4, (i,j)=(0,2) x0-y2-y1-y0
+                //ex: s=4, (i,j)=(-1,3) y3-y2-y1-y0-camera //classic pathtracer
+                path_pdf = 1.0;
 
-            for (unsigned i = 1; i < path.size(); ++i) {
-                wi = (hd.point - path[i].data.point);
-                d2 = wi.norm_square();
-                wi.normalize();
-                if (scene.find_intersection(Ray(path[i].data.point + wi * EPSILON, wi), tem) &&
-                    tem.obj_id == hd.obj_id) {
+                if (j >= ep_size || i >= lp_size)
+                    continue;
+#ifdef DEBUG_RAY
+                str += "(i, j) = (" + std::to_string(i) + "," + std::to_string(j) + ")\n";
+#endif
 
-                    d2 *= (path[i - 1].data.point - path[i].data.point).norm_square();
+                auto ev = eye_path[j];
 
-                    //re evaluate li
-                    li = path[i - 1].li * scene.objects[path[i].data.obj_id]->material->bsdf->f(path[i].wi, wi) *
-                         fabs(Vector3::cos(path[i].data.normal, wi));
+                if (i == -1) //s=j, classic pathtracer
+                {
+                    if (j == ep_size - 1) {
+                        c = ev.cumulative;
+                        path_pdf *= ev.cumulative_pdf;
+#ifdef DEBUG_RAY
+                        str += " Classic PT hit light: (" + std::to_string(ev.cumulative.x()) + ","
+                               + std::to_string(ev.cumulative.y()) + "," + std::to_string(ev.cumulative.z())
+                               + " pdf: " + std::to_string(ev.cumulative_pdf) + "\n";
+#endif
 
-                    //li * brdf * cos(normal, w out)
-//                    rad += li * scene.objects[hd.obj_id]->material->bsdf->f(wi, wo) * Vector3::cos(hd.normal, wi) / d2;
-                    rad += scene.objects[hd.obj_id]->phong_lighting(li, wi * -1, wo, hd.normal, d2);
+                    } else { //did not hit a light source
+                        continue;
+                    }
+                } else {
+#ifdef DEBUG_RAY
+                    str += "BDPT \n";
+#endif
+                    auto lv = light_path[i];
+                    Vector3 l2e = ev.data.point - lv.data.point;
+                    d2 = l2e.norm_square();
+                    l2e.normalize();
+                    if (!scene.find_intersection(Ray(lv.data.point + l2e * EPSILON, l2e), hd) ||
+                        hd.obj_id != ev.data.obj_id) {
+                        continue;
+                    }
+
+
+                    Matrix3x3 l2w = Matrix3x3::modelToWorld(lv.data.normal);
+                    Matrix3x3 w2l = l2w.transpose();
+                    br.wo = w2l * l2e;
+
+                    auto light = scene.lights[0];
+                    //light path
+                    if (i == 0) { //pathtracer with direct illumination
+                        c = light->Le(lv.data.point, br.wo);
+                        if (c.max() < EPSILON)
+                            continue;
+#ifdef DEBUG_RAY
+                        str += "i=0: c: " + c.to_string() + " pdf: " + std::to_string(lv.cumulative_pdf) + "\n";
+#endif
+
+
+                        path_pdf *= lv.cumulative_pdf;
+                    } else {
+
+                        c = light_path[i - 1].cumulative;
+#ifdef DEBUG_RAY
+                        str += "i>0: c: " + c.to_string() + " cum:" + light_path[i - 1].cumulative.to_string() +
+                               " pdf: " + std::to_string(light_path[i - 1].cumulative_pdf) + "\n";
+#endif
+
+                        path_pdf *= light_path[i - 1].cumulative_pdf;
+                        //light contribution bwt xi and yj
+                        br.wi = lv.dir; //lv.dir in light space
+                        c *= scene.objects[lv.data.obj_id]->bsdf->brdf(br,
+                                                                       pdf); //pdf here dont have to use since we dont sample ray bwt xi and yj
+                    }
+
+#ifdef DEBUG_RAY
+                    str += "C before eye " + c.to_string() + "\n";
+#endif
+
+                    //eye path
+                    if (j > 1) {
+                        c *= eye_path[j - 1].cumulative;
+                        path_pdf *= eye_path[j - 1].cumulative_pdf;
+                    }
+#ifdef DEBUG_RAY
+                    str += "C  after eye " + c.to_string() + "\n";
+#endif
+
+
+                    Matrix3x3 e2w = Matrix3x3::modelToWorld(ev.data.normal);
+                    Matrix3x3 w2e = e2w.transpose();
+                    br.wo = ev.dir; //ev.dir in light space;
+                    br.wi = w2e * l2e * -1;
+#ifdef DEBUG_RAY
+                    str += "eye  " + scene.objects[ev.data.obj_id]->bsdf->brdf(br, pdf).to_string() + "\n";
+#endif
+
+                    c *= scene.objects[ev.data.obj_id]->bsdf->brdf(br, pdf) * light->bsdf->attenuation(d2);
+
+#ifdef DEBUG_RAY
+                    str += "C  " + c.to_string() + "\n";
+#endif
+
+
                 }
+#ifdef DEBUG_RAY
+                str += "C path " + c.to_string() + " ;  path_pdf: " + std::to_string(path_pdf) + "\n";
+#endif
+
+                s_rad += c * path_pdf;
+                sum_path_pdf += path_pdf;
+
+            }
+            if (s_rad.max() > 0) {
+#ifdef DEBUG_RAY
+                str += "s_rad " + s_rad.to_string() + " ;  sum pdf: " + std::to_string(sum_path_pdf) + "\n";
+                str += "RAD E: " + (s_rad / sum_path_pdf).to_string() + "\n";
+#endif
+                rad += s_rad / sum_path_pdf;
+
             }
         }
-        if (debug && debug_ray) {
-            std::cout << "direct rad " << rad << "\n";
+
+#ifdef DEBUG_RAY
+        if (rad.max() > 50) {
+            std::cout << " FIREFLIESssssssssssssssssssssssssssssssss " << rad << "\n";
+            std::cout << str << "\n\n";
         }
+#endif
+
 
         return rad;
     }
-    void Pathtracer::trace_light_ray(Path &vertices, Ray ray_in, Vector3 cumulative) {
 
-        Vector3 wo, wi;
+
+    std::vector<Vertex> Pathtracer::generate_eye_path(Ray ray) {
+        Vector3 rad;
+        std::vector<Vertex> path;
+
+        Vector3 cumulative(1.0);
         double pdf;
-        int bounce = 1;
-        HitRecord hd;
-        while (true) {
+        double cumulative_pdf = 1.0;
+        int niter = 0;
 
-            if (bounce >= max_dl_bounce) {
+        HitRecord hd;
+
+        while (true) {
+            if (!scene.find_intersection(ray, hd)) {
+                break;
+            }
+            hd.normal.normalize();
+            Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
+            Matrix3x3 w2m = m2w.transpose();
+            BSDFRecord br;
+            shared_bsdf bsdf = scene.objects[hd.obj_id]->bsdf;
+            shared_obj obj = scene.objects[hd.obj_id];
+
+            //wi : from hit point to previous light vertex
+            br.wi = w2m * ray.get_direction() * -1;
+
+
+            //AMBIENT
+//            rad += scene.ambient_light * bsdf->ka() * cumulative;
+
+
+            if (bsdf->is_light()) {
+                Vertex v(hd, scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative, cumulative_pdf);
+                v.dir = br.wi;
+                path.push_back(v);
+                break;
+            }
+
+            if (niter >= max_idl_bounce) {
                 //ROUSSIAN ROULETTE to terminate path
                 double p = cumulative.max() * terminate_param;
                 if (drand48() >= p)
-                    return;
+                    break;
                 cumulative /= p;
+                cumulative_pdf *= p;
             }
 
-            if (!scene.find_intersection(ray_in, hd))
-                break;
-            wi = ray_in.get_direction();
-            vertices.push_back(Vertex(cumulative, wi, hd));
+            //f * cos(wo, hd.normal)
+            cumulative *= bsdf->sampleBRDF(br, pdf);
+            cumulative *= fabs(cos_theta(br.wo)) / pdf;
+            cumulative_pdf *= pdf;
 
-            double cos_theta =  Vector3::cos(wi, hd.normal);
-            //wo is now still in object space
-            Vector3 color = scene.objects[hd.obj_id]->material->bsdf->sampleBSDF(wi, wo, pdf, cos_theta);
+            Vertex v(hd, cumulative, cumulative_pdf);
+            v.dir = ray.get_direction() * -1;
+            path.push_back(v);
 
-            //integration of Li * brdf * cos(wi, normal)
-            //cos(normal, wo world) = wo.z in object space
-            cumulative *= color * cos_theta/ pdf; //incoming light for the next vertices
+            ray = Ray(hd.point, m2w * br.wo);
 
-            //transform wo from object space to world space
-            Matrix3x3 o2w = Matrix3x3::modelToWorld(hd.normal);
-            wo = o2w * wo;
 
-            ray_in = Ray(hd.point, wo);
-            ++bounce;
+            ++niter;
         }
+
+        return path;
     }
-//
-//    Paths Pathtracer::generate_light_path() {
-//        double forwardPdf = 1.0;
-//        double backwardPdf = 1.0;
-//
-//        Paths lightPaths;
-//
-//        for (auto light: scene.lights) {
-//            Path path;
-//
-//            Ray ray = light->sampleLightRay(forwardPdf, backwardPdf);
-//
-//            HitRecord hd;
-//            hd.point = ray.get_origin();
-//            //forward pdf is sampling surface
-//            Vertex v(light->material->ke / backwardPdf, hd);
-//            path.push_back(v);
-////            std::cout << "v.li/forwardPdf" << v.li/forwardPdf << "\n";
-//            trace_light_ray(path, ray, v.li);
-//            lightPaths.push_back(path);
-//            if (debug && debug_ray) {
-//                std::cout << "li of light " << v.li << "\n";
-//                std::cout << "NB LIGHT POINTs per light " << path.size() << "\n";
-//            }
-//
-//        }
-//
-//        return lightPaths;
-//    }
 
-//    Vector3 Pathtracer::trace(double x, double y) {
-//
-//        Paths lightPaths;
-//        if (max_dl_bounce > 0)
-//            lightPaths = generate_light_path();
-//
-//        if (debug && debug_ray) {
-//            std::cout << "nb of light vertices: " << lightPaths.size() << "\n";
-//            for (auto p: lightPaths)
-//                std::cout << "nb of vertices in a light: " << p.size() << "\n";
-//        }
-//        Ray ray = scene.init_ray(x, y);
-//        return get_radiance(ray, 0, lightPaths);
-//    }
+
+    std::vector<Vertex> Pathtracer::generate_light_path() {
+        std::vector<Vertex> path;
+
+        if (max_dl_bounce < 1)
+            return path;
+
+        //random select light from multiple light sources
+        double rnd = drand48() * scene.lights.size();
+        double select_light_pdf = 1.0 / scene.lights.size();
+        unsigned int light_id = floor(rnd);
+        auto light = scene.lights[light_id];
+
+        //Add light point: the first vertex of path
+        double cumulative_pdf;
+        HitRecord hd;
+
+        //sampling light ray position
+        hd.point = light->sampleSurfacePosition(cumulative_pdf, hd.normal);
+        hd.obj_id = light_id;
+        cumulative_pdf *= select_light_pdf;
+        Vector3 cumulative(1.0 / cumulative_pdf);
+
+        Vertex v(hd, cumulative, cumulative_pdf);
+        path.push_back(v);
+
+        //sampling light ray direction
+        double pdf;
+        Vector3 dir = cosineSampleHemisphere(pdf);
+        cumulative *= light->Le(hd.point, dir) * std::max(0.0, cos_theta(dir))/pdf;
+        cumulative_pdf *= pdf;
+
+
+        Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
+        dir = m2w * dir;
+        Ray ray(hd.point, dir);
+
+        int niter = 1;
+        BSDFRecord br;
+
+        while (true) {
+            if (!scene.find_intersection(ray, hd)) {
+                break;
+            }
+            hd.normal.normalize();
+
+            Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
+            Matrix3x3 w2m = m2w.transpose();
+            shared_bsdf bsdf = scene.objects[hd.obj_id]->bsdf;
+
+            //wi : from hit point to previous light vertex
+            br.wi = w2m * v.dir;
+
+            //AMBIENT
+//            rad += scene.ambient_light * bsdf->ka() * cumulative;
+
+            if (bsdf->is_light()) { //le(x, theta_x)
+                break;
+            }
+
+            if (niter >= max_dl_bounce) {
+                //ROUSSIAN ROULETTE to terminate path
+                double p = cumulative.max() * terminate_param;
+                if (drand48() >= p)
+                    break;
+                cumulative /= p;
+                cumulative_pdf *= p;
+            }
+
+
+
+            //f * cos(wo, hd.normal)
+            cumulative *= bsdf->sampleBRDF(br, pdf);
+            cumulative *= fabs(cos_theta(br.wo)) / pdf;
+            cumulative_pdf *= pdf;
+
+            Vertex v(hd, cumulative, cumulative_pdf);
+            v.dir = br.wi;
+            path.push_back(v);
+
+            ray = Ray(hd.point, m2w * br.wo);
+            ++niter;
+        }
+        return path;
+    }
+
 }
-//    void Pathtracer::trace_light(Vertices& vertices,
-//                                 const Ray &ray, const int bounces,
-//                                 float scale)
-//    {
-//        if (debug && debug_ray)
-//            std::cout << "TRACE LIGHT: " << ray << "; nth bounce: " << bounces << "\n";
-//
-//        double p = 1.0;
-//        if (bounces >= max_dl_bounce)
-//        {
-//            //ROUSSIAN ROULETTE to terminate path
-//            p = prev.col.max() * terminate_param;
-//            if (drand48() >=  p)
-//                return;
-//        }
-//        HitRecord hd; //hit data
-//        if (!scene.find_intersection(ray, hd))
-//            return;
-//
-//
-//        if (hd.normal.dot(ray.get_direction()) > 0)
-//            hd.normal *= -1;
-//        shared_mat mat = scene.objects[hd.obj_id]->material;
-//
-//        //emissive color at this point ???
-//        Vector3 col = scene.objects[hd.obj_id]->get_color_from_light_point(scene.objects, prev, hd,
-//                                                                           ray.get_direction());
-//        col *= scale;
-//        col += mat->ke;
-//
-//        //col.clamp(0, max_intensity);
-//        Vertex v(hd.point, hd.obj_id, col);
-//        if (debug && debug_ray)
-//            std::cout << "obj id: " << hd.obj_id <<"\n";
-//        vertices.push_back(v);
-//
-//        Vector3 dir;
-//        switch (mat->type) {
-//            case Material::DIFFUSE:
-//                dir = sample_diffuse(hd.normal);
-//                break;
-//            case Material::SPECULAR:
-//                dir = ray.get_direction().reflect(hd.normal);
-//                break;
-//            default:
-//                dir = sample_specular(hd.normal, mat->ns);
-//        }
-//        trace_light(vertices, v, Ray(hd.point, dir), bounces + 1, mat->kr);
-//    }
-
-

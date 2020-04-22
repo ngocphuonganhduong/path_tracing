@@ -27,6 +27,7 @@ set(SOURCE
         src/classic_pt.cpp
         src/pt.cpp
         src/parser/parse_arg.cpp
+        src/bdpt.cpp
         )
 find_package (Threads)
 set(CMAKE_XCODE_GENERATE_SCHEME ON)
@@ -35,8 +36,10 @@ set(CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN ON)
 add_executable(main src/main.cpp ${SOURCE})
 add_executable(main2 src/main2.cpp ${SOURCE})
 add_executable(main3 src/main3.cpp ${SOURCE})
+add_executable(main4 src/main4.cpp ${SOURCE})
 
 add_compile_options(-Wall -Werror -Wextra -fsanitize=address)
 target_link_libraries (main ${CMAKE_THREAD_LIBS_INIT} -fsanitize=address)
 target_link_libraries (main2 ${CMAKE_THREAD_LIBS_INIT} -fsanitize=address)
 target_link_libraries (main3 ${CMAKE_THREAD_LIBS_INIT} -fsanitize=address)
+target_link_libraries (main4 ${CMAKE_THREAD_LIBS_INIT} -fsanitize=address)

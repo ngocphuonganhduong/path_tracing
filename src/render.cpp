@@ -17,7 +17,7 @@ namespace pathtracing {
         area_size = 1.0 / 4.0;
 
         pixels = new uint8_t[scene_.width * scene_.height * 3];
-        max_dl_bounce = 1;
+        max_dl_bounce = 4;
         max_idl_bounce = 10;
         terminate_param = 0.8;
         max_intensity = 0.9;
@@ -71,6 +71,11 @@ namespace pathtracing {
                 if (debug)
                     std::cout << "Traditional PT (only implicit light, no explicit)\n";
                 trace_func = &Pathtracer::trace_classic_pt;
+                break;
+            case BDPT:
+                if (debug)
+                    std::cout << "Bidirectional PT (only implicit light, no explicit)\n";
+                trace_func = &Pathtracer::trace_bdpt;
                 break;
             default:
                 if (debug)

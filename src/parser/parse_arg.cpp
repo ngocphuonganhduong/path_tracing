@@ -43,6 +43,10 @@ namespace pathtracing {
             {
                 pt.mode = CLASSIC_PT;
             }
+            else if (strcmp(argv[i], "--bdpt") == 0)
+            {
+                pt.mode = BDPT;
+            }
 
         }
     }

@@ -14,16 +14,21 @@ namespace pathtracing {
     };
 
     struct Vertex {
-        Vector3 li;
-        Vector3 wi; //incoming light direction
         HitRecord data;
+        Vector3 cumulative;
+        Vector3 dir;
 
-        Vertex(const Vector3 &li_, const HitRecord &data_) : li(li_), data(data_) {}
-        Vertex(const Vector3 &li_, const Vector3 &wi_, const HitRecord &data_) : li(li_), wi(wi_), data(data_) {}
+        double cumulative_pdf = 1.0; //used for calculating weights of bdpt
 
+        Vertex(const HitRecord &data_) : data(data_) {}
+
+        Vertex(const HitRecord &data_, const Vector3 &cumulative_, const double &cumulative_pdf_) : data(data_),
+                                                                                                    cumulative(
+                                                                                                            cumulative_),
+                                                                                                    cumulative_pdf(
+                                                                                                            cumulative_pdf_) {}
     };
 
-    using Path = std::vector<Vertex>;
-    using Paths = std::vector<Path>;
+    using Vertices = std::vector<Vertex>;
 }
 #endif /* VERTEX_HH */

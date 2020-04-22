@@ -122,11 +122,11 @@ namespace pathtracing {
         auto tri = triangles[round(drand48() * (triangles.size() - 1))];
         surfaceNormal = (tri.p[1] - tri.p[0]).cross(tri.p[2] - tri.p[0]);
         surfaceNormal.normalize();
-        return position + tri.p[0];
+        return position + tri.p[unsigned (floor(drand48() * 3))];
     }
 
     double TriangleMesh::sampleSurfacePositionPDF() const {
-        return 1.0 / triangles.size();
+        return 1.0 / (triangles.size() * 3);
     }
 
     double TriangleMesh::sampleDirectionPDF(const BSDFRecord &) const {

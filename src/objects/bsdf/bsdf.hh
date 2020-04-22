@@ -56,9 +56,9 @@ namespace pathtracing {
 
         static double computeFresnelReflectivity(double cosI, const double &n1, const double &n2);
 
+        virtual Vector3 sampleBRDF(BSDFRecord &data, double &pdf) const = 0;
 
     protected:
-        virtual Vector3 sampleBRDF(BSDFRecord &data, double &pdf) const = 0;
 
         unsigned int type = 0;
         shared_mat mat_;

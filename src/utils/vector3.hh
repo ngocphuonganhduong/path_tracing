@@ -6,6 +6,7 @@
 #include <optional>
 #include <algorithm>
 #include <iomanip>
+#include <string>
 
 #pragma once
 
@@ -162,6 +163,11 @@ namespace pathtracing {
 
         constexpr double max() const noexcept {
             return std::max(val[0], std::max(val[1], val[2]));
+        }
+
+        std::string to_string() const {
+            std::string s =  "(" + std::to_string(val[0]) + "," + std::to_string(val[1]) +","+ std::to_string(val[2]) + ")";
+            return s;
         }
 
         static double cos(const Vector3 &v1, const Vector3 &v2) noexcept {

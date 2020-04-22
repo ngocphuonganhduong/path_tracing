@@ -4,6 +4,7 @@
 #include "scene.hh"
 #include "utils/matrix.hh"
 #include <thread>
+//#define DEBUG_RAY
 
 #define EPSILON 0.00001
 
@@ -29,12 +30,15 @@ namespace pathtracing {
 
         Vector3 trace_classic_pt(Ray ray);
 
-        Vector3 trace_bdpt(double x, double y);
+        Vector3 trace_bdpt(Ray ray);
+        double computeWeight(const Vertices& light_path, const Vertices& eye_path, int i, int j);
+        double computeContribution(const Vertices& light_path, const Vertices& eye_path, int i, int j);
 
         void set_nb_samples(unsigned int ns);
 
         int max_dl_bounce; //max nb of direct light bounces
         int max_idl_bounce; //max nb of indirect light bounces
+//        int max_path_length = 5; //max nb of indirect light bounces
         std::string filename;
         Mode mode;
 
@@ -43,11 +47,12 @@ namespace pathtracing {
 
         void render_y(int thread_id, int starty, int endy, Vector3 (Pathtracer::*trace_func)(Ray));
 
-        Paths generate_light_path();
+        std::vector<Vertex> generate_light_path();
+        std::vector<Vertex> generate_eye_path(Ray ray);
 
-        void trace_light_ray(Path &vertices, Ray ray_in, Vector3 cumulative);
+//        void trace_light_ray(Path &vertices, Ray ray_in, Vector3 cumulative);
 
-        Vector3 computeDirectLighting(const Paths &lightPaths, const HitRecord &hd, const Vector3 &wo);
+//        Vector3 computeDirectLighting(const Paths &lightPaths, const HitRecord &hd, const Vector3 &wo);
 
 
         /**
