@@ -6,7 +6,7 @@ namespace pathtracing {
         HitRecord hd;
         Vector3 rad;
         Vector3 cumulative(1.0);
-        double bsdf_pdf = 1.0;
+        double bsdf_pdf = 2.0;
         int niter = 0;
 
         while (true) {
@@ -24,11 +24,10 @@ namespace pathtracing {
             shared_bsdf bsdf = scene.objects[hd.obj_id]->bsdf;
 
             //AMBIENT
-            rad += scene.ambient_light * bsdf->ka() * cumulative;
-
+            rad += scene.ambient_light * bsdf->ka() * cumulative * (bsdf_pdf - 1); //iter = 0: rad += la
 
             if (bsdf->is_light()) { //le(x, theta_x)
-                rad +=  scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative;
+                rad += scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative;
             }
 
             if (niter >= max_idl_bounce) {
@@ -39,16 +38,7 @@ namespace pathtracing {
                 cumulative /= p;
             }
 
-
             cumulative *= bsdf->evalSampleBSDF(br, bsdf_pdf);
-
-//            if (debug_ray && debug) {
-//                std::cout << cumulative << " f:" << f << " pdf:" << bsdf_pdf << "\n";
-//                std::cout << "wo " << br.wo << " wi" << br.wi << "\n";
-//                std::cout << "w2m " << w2m << " m2w" << m2w << "\n";
-//                std::cout << "rad " << rad << "\n";
-//            }
-//            cumulative *= f * fabs(cos_theta(br.wo)) / bsdf_pdf;
 
             ray = Ray(hd.point, m2w * br.wo);
             ++niter;
