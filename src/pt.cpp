@@ -7,21 +7,21 @@ namespace pathtracing {
         HitRecord hd;
         Vector3 rad;
         Vector3 cumulative(1.0);
-//        if (debug && debug_ray)
-//            std::cout << "trace" << ray << " cumulative: " << cumulative << "\n";
         double bsdf_pdf = 1.0;
         double light_pdf = 0.0;
         int niter = 0;
-        Vector3 col;
 
         while (true) {
             if (!scene.find_intersection(ray, hd)) {
                 break;
             }
-
             shared_bsdf bsdf = scene.objects[hd.obj_id]->bsdf;
 
-            rad += scene.ambient_light * bsdf->ka() * cumulative;
+            //AMBIENT
+            if (niter == 0)
+                rad += scene.ambient_light * bsdf->ka() * cumulative * bsdf_pdf;
+            else
+                rad += scene.ambient_light * bsdf->ka() * cumulative * (bsdf_pdf - 1);
 
             hd.normal.normalize();
             Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
