@@ -79,7 +79,7 @@ namespace pathtracing {
                     //ex: s=2: (i,j): (-1, 2) : y2-y1-y0
                     //since eye path terminates when it is hit a light or exceeds the boundary
                     //contribution = 0 if j is not the last vertex of eye path or j is not light
-                    if (j == ep_size - 1 && scene.objects[ev.data.obj_id]->bsdf->is_light()) {
+                    if (ev.is_emissive) {
                         c = ev.cumulative;
                         path_pdf *= ev.cumulative_pdf;
 #ifdef DEBUG_RAY
@@ -94,8 +94,8 @@ namespace pathtracing {
                     auto lv = light_path[i];
                     Vector3 l2e = ev.data.point - lv.data.point;
                     d2 = l2e.norm_square();
-                    if (d2 < 1) // avoid too small
-                        d2 = 1;
+//                    if (d2 < 1) // avoid too small
+//                        d2 = 1;
                     l2e.normalize();
                     //occlusion test: shoot shadow ray
                     if (!scene.find_intersection(Ray(lv.data.point + l2e * EPSILON, l2e), hd) ||
@@ -106,24 +106,24 @@ namespace pathtracing {
 
                     Matrix3x3 l2w = Matrix3x3::modelToWorld(lv.data.normal);
                     Matrix3x3 w2l = l2w.transpose();
-                    br.wi = w2l * l2e;
+                    br.wo = w2l * l2e;
 
-                    auto light = scene.lights[0];
+                    auto light = scene.lights[light_path[0].data.obj_id];
 
 
                     //LIGHT path contribution
                     if (i == 0) { //pathtracer with direct illumination
                         //since i == 0: we need to re-evaluate the contribution Le(xo, xi->yj)
-                        c = light->Le(lv.data.point, br.wo);
+                        c = light->Le(lv.data.point, br.wo) * lv.cumulative;
                         if (c.max() < EPSILON)
                             continue;
 #ifdef DEBUG_RAY
                         str += "i=0: c: " + c.to_string() + " pdf: " + std::to_string(lv.cumulative_pdf) + "\n";
 #endif
 
-
                         path_pdf *= lv.cumulative_pdf;
                     } else {
+//                        continue;
                         //since i != 0: contribution of light source is always Le(xo, xo->x1)
                         //amount of contribution from x0 to xi-1 is the same
                         c = light_path[i - 1].cumulative;
@@ -134,9 +134,12 @@ namespace pathtracing {
                                " pdf: " + std::to_string(light_path[i - 1].cumulative_pdf) + "\n";
 #endif
                         //amount of light contribution from xi to yj is the same
-                        br.wo = lv.dir; //lv.dir in light space
+                        br.wi = lv.dir; //lv.dir in light space
                         c *= scene.objects[lv.data.obj_id]->bsdf->brdf(br, pdf);
-                        path_pdf *= pdf;
+#ifdef DEBUG_RAY
+                        str += "wo: " + br.wo.to_string() + " ; pdf: " + std::to_string(pdf) + " ; path_pdf: " +
+                               std::to_string(path_pdf) + "\n";
+#endif
 
                     }
 
@@ -144,7 +147,7 @@ namespace pathtracing {
                     str += "C before eye " + c.to_string() + "\n";
 #endif
 
-                    //EYE path contribution
+//                    EYE path contribution
                     if (j > 1) { //from y0 to yj-1
                         c *= eye_path[j - 1].cumulative;
                         path_pdf *= eye_path[j - 1].cumulative_pdf;
@@ -152,13 +155,13 @@ namespace pathtracing {
 #ifdef DEBUG_RAY
                     str += "C  after eye " + c.to_string() + "\n";
 #endif
-                    c *= fabs(cos_theta(br.wo));
+                    c *= std::max(0.0, cos_theta(br.wo));
 
                     Matrix3x3 e2w = Matrix3x3::modelToWorld(ev.data.normal);
                     Matrix3x3 w2e = e2w.transpose();
-                    br.wo = ev.dir; //ev.dir in light space;
+                    br.wo = ev.dir; //ev.dir in eye space;
                     br.wi = w2e * l2e * -1;
-                    c *= fabs(cos_theta(br.wi));
+                    c *= std::max(0.0, cos_theta(br.wi));
 
 #ifdef DEBUG_RAY
                     str += "eye  " + scene.objects[ev.data.obj_id]->bsdf->brdf(br, pdf).to_string() + "\n";
@@ -175,10 +178,8 @@ namespace pathtracing {
 #ifdef DEBUG_RAY
                 str += "C path " + c.to_string() + " ;  path_pdf: " + std::to_string(path_pdf) + "\n";
 #endif
-
                 s_rad += c * path_pdf;
                 sum_path_pdf += path_pdf;
-
             }
             if (s_rad.max() > 0) {
 #ifdef DEBUG_RAY
@@ -191,12 +192,11 @@ namespace pathtracing {
         }
 
 #ifdef DEBUG_RAY
-        if (rad.max() > 5) {
+        if (rad.max() > 10) {
             std::cout << " FIREFLIESssssssssssssssssssssssssssssssss " << rad << "\n";
             std::cout << str << "\n\n";
         }
 #endif
-
 
         return rad;
     }
@@ -234,10 +234,11 @@ namespace pathtracing {
                 if (le.max() > EPSILON) {
                     Vertex v(hd, le * cumulative, cumulative_pdf);
                     v.dir = br.wi;
+                    v.is_emissive = true;
                     path.push_back(v);
-                    break;
-
                 }
+                break;
+
             }
 
             if (niter >= max_idl_bounce) {
@@ -340,14 +341,14 @@ namespace pathtracing {
 
             //f * cos(wo, hd.normal)
             cumulative *= bsdf->sampleBRDF(br, pdf);
-            cumulative *= fabs(cos_theta(br.wo)) / pdf;
+            cumulative *= std::max(0.0, cos_theta(br.wo)) / pdf;
             cumulative_pdf *= pdf;
 
             Vertex v(hd, cumulative, cumulative_pdf);
             v.dir = br.wi;
             path.push_back(v);
 
-            ray = Ray(hd.point, m2w * br.wo);
+            ray = Ray(hd.point + br.wo * EPSILON, m2w * br.wo);
             ++niter;
         }
         return path;
