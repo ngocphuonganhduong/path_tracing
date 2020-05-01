@@ -2,7 +2,6 @@
 #include <fstream>
 #include <algorithm>
 
-#define NB_THREADS 20
 
 
 namespace pathtracing {
@@ -74,7 +73,7 @@ namespace pathtracing {
                 break;
             case BDPT:
                 if (debug)
-                    std::cout << "Bidirectional PT (only implicit light, no explicit)\n";
+                    std::cout << "Bidirectional PT\n";
                 trace_func = &Pathtracer::trace_bdpt;
                 break;
             default:

@@ -17,6 +17,7 @@ namespace pathtracing {
         HitRecord data;
         Vector3 cumulative;
         Vector3 dir;
+        bool is_emissive = false;
 
         double cumulative_pdf = 1.0; //used for calculating weights of bdpt
 

@@ -96,6 +96,40 @@ namespace pathtracing {
             return mat;
         }
 
+        static Matrix3x3 worldToModel(const Vector3 &normal) {
+            Matrix3x3 mat; //(u, v, n) or (T (tangent), B(bi-tangent), N) space
+
+            Vector3 z = normal;
+            z.normalize();
+
+            Vector3 x = normal;
+            if (fabs(x.x()) <= fabs(x.y()) && fabs(x.x()) <= fabs(x.z()))
+                x[0] = 1.0;
+            else if (fabs(x.y()) <= fabs(x.x()) && fabs(x.y()) <= fabs(x.z()))
+                x[1] = 1.0;
+            else
+                x[2] = 1.0;
+
+            Vector3 y = x.cross(z);
+            y.normalize();
+
+            x = z.cross(y);
+            x.normalize();
+
+            mat[0][0] = x[0];
+            mat[1][0] = x[1];
+            mat[2][0] = x[2];
+
+            mat[0][1] = y[0];
+            mat[1][1] = y[1];
+            mat[2][1] = y[2];
+
+            mat[0][2] = z[0];
+            mat[1][2] = z[1];
+            mat[2][2] = z[2];
+
+            return mat;
+        }
 
     };
 

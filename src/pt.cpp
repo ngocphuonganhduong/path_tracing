@@ -9,6 +9,7 @@ namespace pathtracing {
         Vector3 cumulative(1.0);
         double bsdf_pdf = 1.0;
         double light_pdf = 0.0;
+        double d2;
         int niter = 0;
 
         while (true) {
@@ -31,16 +32,22 @@ namespace pathtracing {
             br.wi = w2m * (ray.get_direction().normalize()) * -1;
 
             if (bsdf->is_light()) {
-                light_pdf = scene.objects[hd.obj_id]->sampleSurfacePositionPDF();
-                rad += scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative * bsdf_pdf / (bsdf_pdf + light_pdf);
+                if (niter > 0) {
+                    d2 = (hd.point - ray.get_origin()).norm_square();
+                    light_pdf = scene.objects[hd.obj_id]->sampleSurfacePositionPDF();
+                    light_pdf /= std::max(EPSILON, cos_theta(br.wi)) * scene.objects[hd.obj_id]->bsdf->attenuation(d2);
+                    rad += scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative * bsdf_pdf /
+                           (bsdf_pdf + light_pdf);
+                } else {
+                    rad += scene.objects[hd.obj_id]->Le(hd.point, br.wi);
+                }
             }
-
 
             for (auto light: scene.lights) {
                 Vector3 lightNormal;
                 Vector3 pos = light->sampleSurfacePosition(light_pdf, lightNormal);
                 Vector3 l2o = hd.point - pos; //light to object
-                double d2 = l2o.norm_square();
+                d2 = l2o.norm_square();
                 l2o.normalize();
                 HitRecord tem;
                 Vector3 filter_opacity(1.0);
@@ -60,15 +67,18 @@ namespace pathtracing {
                 }
                 if (filter_opacity.max() > EPSILON) {
                     br.wo = w2m * (l2o.normalize() * -1); //object to light
-                    if (d2 < 1) // avoid too small
-                        d2 = 1;
-                    Matrix3x3 l2w = Matrix3x3::modelToWorld(lightNormal);
-                    Matrix3x3 w2l = l2w.transpose();
+
+                    Matrix3x3 w2l = Matrix3x3::worldToModel(lightNormal);
                     Vector3 l2o_lightSpace = w2l * l2o;
 
-                    filter_opacity *= light->Le(pos, l2o_lightSpace) * bsdf->f(br, bsdf_pdf) * cumulative;
-                    filter_opacity *= std::max(0.0, cos_theta(br.wo)) * std::max(0.0, cos_theta(l2o_lightSpace));
-                    filter_opacity *= light->bsdf->attenuation(d2);
+
+                    filter_opacity *=
+                            light->Le(pos, l2o_lightSpace) * bsdf->f(br, bsdf_pdf) * std::max(0.0, cos_theta(br.wo)) *
+                            cumulative;
+
+                    //convert to pw = pa / G()
+                    light_pdf /= light->bsdf->attenuation(d2) * std::max(EPSILON, cos_theta(l2o_lightSpace));
+
                     filter_opacity /= (bsdf_pdf + light_pdf); //weights
                     rad += filter_opacity;
                 }
@@ -85,6 +95,7 @@ namespace pathtracing {
             }
 
             br.wo = m2w * br.wo;
+
             ray = Ray(hd.point + br.wo * EPSILON, br.wo);
             ++niter;
         }
