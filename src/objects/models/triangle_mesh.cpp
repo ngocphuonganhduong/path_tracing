@@ -43,11 +43,15 @@ namespace pathtracing {
         p[2] = R.mult_vector3(p[2]);
     }
 
-    double Triangle::sampleSurfacePositionPDF() const
+    void Triangle::compute_area()
     {
         Vector3 base = p[1] - p[0];
         Vector3 height = p[2] - p[0];
-        double area = 0.5 * (base.cross(height)).norm();
+        area = 0.5 * (base.cross(height)).norm();
+    }
+
+    double Triangle::sampleSurfacePositionPDF() const
+    {
         return 1.0 / area;
     }
 
@@ -79,6 +83,9 @@ namespace pathtracing {
 
             // Apply rotation
             (*tri).rotate(rotation);
+
+            // Compute the triangle's area
+            (*tri).compute_area();
         }
     }
 

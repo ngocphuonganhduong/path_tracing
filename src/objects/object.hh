@@ -56,9 +56,12 @@ namespace pathtracing {
     //TRIANGLE MESH
     typedef struct {
         Vector3 p[3];
+        double area;
     
         void scale(const Vector3 &scale);
         void rotate(const Vector3 &rotation);
+        
+        void compute_area();
 
         double sampleSurfacePositionPDF() const;
         Vector3 sampleSurfacePosition(double &pdf, Vector3& normal);
