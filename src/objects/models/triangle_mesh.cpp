@@ -43,6 +43,32 @@ namespace pathtracing {
         p[2] = R.mult_vector3(p[2]);
     }
 
+    double Triangle::sampleSurfacePositionPDF() const
+    {
+        Vector3 base = p[1] - p[0];
+        Vector3 height = p[2] - p[0];
+        double area = 0.5 * (base.cross(height)).norm();
+        return 1.0 / area;
+    }
+
+    Vector3 Triangle::sampleSurfacePosition(double &pdf, Vector3& normal)
+    {
+        pdf = sampleSurfacePositionPDF();
+        normal = (p[1] - p[0]).cross(p[2] - p[0]);
+        normal.normalize();
+
+        double r = drand48();
+        double s = drand48();
+
+        if (r + s >= 1.0)
+        {
+            r = 1 - r;
+            s = 1 - s;
+        }
+
+        return p[0] + (p[1] - p[0]) * r + (p[2] - p[0]) * s;
+    }
+    
     TriangleMesh::TriangleMesh(const Vector3 &position, shared_bsdf bsdf, TriVector &triangles_, const Vector3 &scale, const Vector3 &rotation)
             : Object(position, bsdf), triangles(triangles_)
     {
@@ -117,7 +143,19 @@ namespace pathtracing {
         return hit;
     }
 
-    Vector3 TriangleMesh::sampleSurfacePosition(double &pdf, Vector3 &surfaceNormal) const {
+    Vector3 TriangleMesh::sampleSurfacePosition(double &pdf, Vector3 &surfaceNormal) const
+    {
+        auto tri = triangles[round(drand48() * (triangles.size() - 1))];
+        return position + tri.sampleSurfacePosition(pdf, surfaceNormal);
+    }
+
+    double TriangleMesh::sampleSurfacePositionPDF() const
+    {
+        auto tri = triangles[round(drand48() * (triangles.size() - 1))];
+        return tri.sampleSurfacePositionPDF();
+    }
+
+    /*Vector3 TriangleMesh::sampleSurfacePosition(double &pdf, Vector3 &surfaceNormal) const {
         pdf = sampleSurfacePositionPDF();
         auto tri = triangles[round(drand48() * (triangles.size() - 1))];
         surfaceNormal = (tri.p[1] - tri.p[0]).cross(tri.p[2] - tri.p[0]);
@@ -127,7 +165,7 @@ namespace pathtracing {
 
     double TriangleMesh::sampleSurfacePositionPDF() const {
         return 1.0 / (triangles.size() * 3);
-    }
+    }*/
 
     double TriangleMesh::sampleDirectionPDF(const BSDFRecord &) const {
         return uniformSampleSpherePDF();

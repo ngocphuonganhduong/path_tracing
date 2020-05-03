@@ -59,6 +59,10 @@ namespace pathtracing {
     
         void scale(const Vector3 &scale);
         void rotate(const Vector3 &rotation);
+
+        double sampleSurfacePositionPDF() const;
+        Vector3 sampleSurfacePosition(double &pdf, Vector3& normal);
+
     } Triangle;
 
     using TriVector = std::vector<Triangle>;
