@@ -5,7 +5,7 @@
 #include "utils/matrix.hh"
 #include <thread>
 //#define DEBUG_RAY
-#define NB_THREADS 20
+#define NB_THREADS 30
 
 #define EPSILON 0.000001
 

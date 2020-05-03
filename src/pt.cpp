@@ -1,5 +1,7 @@
 #include "render.hh"
 
+#define W_BIAS 2.0
+
 namespace pathtracing {
 
 
@@ -35,9 +37,9 @@ namespace pathtracing {
                 if (niter > 0) {
                     d2 = (hd.point - ray.get_origin()).norm_square();
                     light_pdf = scene.objects[hd.obj_id]->sampleSurfacePositionPDF();
-                    light_pdf /= std::max(EPSILON, cos_theta(br.wi)) * scene.objects[hd.obj_id]->bsdf->attenuation(d2);
-                    rad += scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative * bsdf_pdf /
-                           (bsdf_pdf + light_pdf);
+                    light_pdf /= scene.objects[hd.obj_id]->bsdf->attenuation(d2) * std::max(EPSILON, cos_theta(br.wi));//* scene.objects[hd.obj_id]->bsdf->attenuation(d2);
+                    rad += scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative * W_BIAS * bsdf_pdf /
+                           (W_BIAS * bsdf_pdf + light_pdf);
                 } else {
                     rad += scene.objects[hd.obj_id]->Le(hd.point, br.wi);
                 }
@@ -71,15 +73,13 @@ namespace pathtracing {
                     Matrix3x3 w2l = Matrix3x3::worldToModel(lightNormal);
                     Vector3 l2o_lightSpace = w2l * l2o;
 
-
-                    filter_opacity *=
-                            light->Le(pos, l2o_lightSpace) * bsdf->f(br, bsdf_pdf) * std::max(0.0, cos_theta(br.wo)) *
+                    light_pdf /= std::max(EPSILON, cos_theta(l2o_lightSpace)) * light->bsdf->attenuation(d2);
+                    filter_opacity *= light->Le(pos, l2o_lightSpace) * bsdf->f(br, bsdf_pdf) * std::max(0.0, cos_theta(br.wo)) *
                             cumulative;
 
-                    //convert to pw = pa / G()
-                    light_pdf /= light->bsdf->attenuation(d2) * std::max(EPSILON, cos_theta(l2o_lightSpace));
 
-                    filter_opacity /= (bsdf_pdf + light_pdf); //weights
+                    //convert to pw = pa / G()
+                    filter_opacity /= (W_BIAS * bsdf_pdf + light_pdf); //weights
                     rad += filter_opacity;
                 }
             }
@@ -88,7 +88,7 @@ namespace pathtracing {
 
             if (niter >= max_idl_bounce) {
                 //ROUSSIAN ROULETTE to terminate path
-                double p = cumulative.max() * terminate_param;
+                double p = std::min(1.0, cumulative.max()) * terminate_param;
                 if (drand48() >= p)
                     break;
                 cumulative /= p;

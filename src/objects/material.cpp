@@ -17,7 +17,7 @@ namespace pathtracing {
         ke = ke_;
         a = a_;
         b = b_;
-        c = c_;
+        c = std::max(1.0, c_);
     }
 
     void Material::set_transparency(const double &opacity, const Vector3 &transparent_filter_color) {

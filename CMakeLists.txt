@@ -28,6 +28,7 @@ set(SOURCE
         src/pt.cpp
         src/parser/parse_arg.cpp
         src/bdpt.cpp
+        src/bdpt_generate_path.cpp
         )
 find_package (Threads)
 set(CMAKE_XCODE_GENERATE_SCHEME ON)

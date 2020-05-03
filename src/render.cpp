@@ -3,7 +3,6 @@
 #include <algorithm>
 
 
-
 namespace pathtracing {
     bool debug = false;
     bool debug_ray = false;
@@ -18,7 +17,7 @@ namespace pathtracing {
         pixels = new uint8_t[scene_.width * scene_.height * 3];
         max_dl_bounce = 4;
         max_idl_bounce = 10;
-        terminate_param = 0.8;
+        terminate_param = 0.9;
         max_intensity = 0.9;
         filename = "output.ppm";
         mode = Mode::PT;
@@ -64,7 +63,8 @@ namespace pathtracing {
         if (debug)
             std::cout << "Start Render scene(" << scene.width
                       << ", " << scene.height << ")\n";
-        Vector3(Pathtracer::*trace_func)(Ray);
+        Vector3(Pathtracer::*
+        trace_func)(Ray);
         switch (mode) {
             case CLASSIC_PT:
                 if (debug)
