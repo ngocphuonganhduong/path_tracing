@@ -32,8 +32,6 @@ namespace pathtracing {
         Vector3 trace_classic_pt(Ray ray);
 
         Vector3 trace_bdpt(Ray ray);
-        double computeWeight(const Vertices& light_path, const Vertices& eye_path, int i, int j);
-        double computeContribution(const Vertices& light_path, const Vertices& eye_path, int i, int j);
 
         void set_nb_samples(unsigned int ns);
 
@@ -48,6 +46,7 @@ namespace pathtracing {
 
         void render_y(int thread_id, int starty, int endy, Vector3 (Pathtracer::*trace_func)(Ray));
 
+        Vector3 visibility_test(const Vector3& position, const Vector3& direction, unsigned int obj_id) const;
         std::vector<Vertex> generate_light_path();
         std::vector<Vertex> generate_eye_path(Ray ray);
 

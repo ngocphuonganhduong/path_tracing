@@ -39,49 +39,6 @@ namespace pathtracing {
         //s=0: (i,j): (-1, 0) : y0
         rad += scene.objects[eye_path[0].data.obj_id]->Le(eye_path[0].data.point, eye_path[0].dir);
         auto light = scene.lights[light_path[0].data.obj_id];
-//        auto ev = eye_path[0];
-//        int il = 2;
-//        if (lp_size <= il)
-//            il = lp_size - 1;
-//        auto lv = light_path[il];
-//        Vector3 l2e = ev.data.point - lv.data.point;
-//        d2 = l2e.norm_square();
-//        if (d2 < 1)
-//            return rad;
-//        l2e.normalize();
-//
-//
-//        if (scene.find_intersection(Ray(lv.data.point + l2e * EPSILON, l2e), hd) &&
-//            hd.obj_id == ev.data.obj_id) {
-//
-//            Matrix3x3 l2w = Matrix3x3::modelToWorld(lv.data.normal);
-//            Matrix3x3 w2l = l2w.transpose();
-//            br.wo = w2l * l2e;
-//
-//            if (il == 0)
-//                c = light->Le(lv.data.point, br.wo) * lv.cumulative;
-//            else {
-//                c = lv.cumulative;
-//                br.wi = lv.dir; //lv.dir in light space
-//                c *= scene.objects[lv.data.obj_id]->bsdf->brdf(br, pdf);
-//
-//            }
-//
-//            c *= std::max(0.0, cos_theta(br.wo));
-//
-//            Matrix3x3 e2w = Matrix3x3::modelToWorld(ev.data.normal);
-//            Matrix3x3 w2e = e2w.transpose();
-//            br.wi = ev.dir; //ev.dir in eye space;
-//            br.wo = w2e * l2e * -1;
-//            c *= std::max(0.0, cos_theta(br.wo));
-//            c *= scene.objects[ev.data.obj_id]->bsdf->brdf(br, pdf) * light->bsdf->attenuation(d2);
-////            if (c.max() > 5)
-////                std::cout << c << "\n";
-//
-//            c.clamp(0.0, 1);
-//            return c;
-//        }
-//        return rad;
 
         for (int s = 1; s < max_path_length; ++s) {
 #ifdef DEBUG_RAY
@@ -137,9 +94,8 @@ namespace pathtracing {
                 l2e.normalize();
 
                 //occlusion test: shoot shadow ray
-                c = Vector3(0.0);
-                if (scene.find_intersection(Ray(lv.data.point + l2e * EPSILON, l2e), hd) &&
-                    hd.obj_id == ev.data.obj_id) {
+                c = visibility_test(lv.data.point, l2e, ev.data.obj_id);
+                if (c.max() > EPSILON) {
 
                     Matrix3x3 l2w = Matrix3x3::modelToWorld(lv.data.normal);
                     Matrix3x3 w2l = l2w.transpose();
@@ -148,21 +104,21 @@ namespace pathtracing {
                     //LIGHT path contribution
                     if (i == 0) { //classic pathtracer
                         //since i == 0: we need to re-evaluate the contribution Le(xo, xi->yj)
-                        c = light->Le(lv.data.point, br.wo) * lv.cumulative;
+                        c *= light->Le(lv.data.point, br.wo) * lv.cumulative;
                         if (c.max() < EPSILON)
                             continue;
 #ifdef DEBUG_RAY
                         str += "i=0: c: " + c.to_string() + "\n";
 #endif
                     } else {
-                        c = lv.cumulative;
+                        c *= lv.cumulative;
 
 #ifdef DEBUG_RAY
                         str += "i>0: c: " + c.to_string() + " cum:" + light_path[i - 1].cumulative.to_string() + "\n";
 #endif
                         //amount of light contribution from xi to yj is the same
                         br.wi = lv.dir; //lv.dir in light space
-                        c *= scene.objects[lv.data.obj_id]->bsdf->brdf(br, pdf);
+                        c *= scene.objects[lv.data.obj_id]->bsdf->evalBSDF(br, pdf);
                     }
 
 #ifdef DEBUG_RAY
@@ -185,10 +141,10 @@ namespace pathtracing {
                     br.wi = w2e * l2e * -1;
                     c *= std::max(0.0, cos_theta(br.wi));
 #ifdef DEBUG_RAY
-                    str += "C: " + c.to_string() + "\n";
+                    str += "C: " + c.to_string() +  " wi" + br.wi.to_string() +  "\n";
 #endif
 
-                    c *= scene.objects[ev.data.obj_id]->bsdf->brdf(br, pdf) * light->bsdf->attenuation(d2);
+                    c *= scene.objects[ev.data.obj_id]->bsdf->evalBSDF(br, pdf) * light->bsdf->attenuation(d2);
 #ifdef DEBUG_RAY
                     str += "C final " + c.to_string() + " ; f:" +  scene.objects[ev.data.obj_id]->bsdf->brdf(br, pdf).to_string() + "\n";
 #endif
@@ -230,12 +186,12 @@ namespace pathtracing {
             rad += sum_rad;
         }
 #ifdef DEBUG_RAY
-        if (rad.max() > 10)
-        {
-            std::cout << "FIREFLIESSSSS " << rad.to_string() << "\n";
-            std::cout << str << "\n\n";
+//        if (rad.max() < 1)
+//        {
+//            std::cout << "FIREFLIESSSSS " << rad.to_string() << "\n";
+            std::cout <<"\n"<< str << "\n\n";
 
-        }
+//        }
 #endif
 
         return rad;

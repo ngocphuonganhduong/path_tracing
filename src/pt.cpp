@@ -1,9 +1,27 @@
 #include "render.hh"
 
-#define W_BIAS 2.0
+#define W_BIAS 5.0
 
 namespace pathtracing {
 
+    Vector3  Pathtracer::visibility_test(const Vector3& position, const Vector3& direction, unsigned int obj_id) const{
+        HitRecord tem;
+        Vector3 filter_opacity(1.0);
+        tem.point = position;
+        while (true) {
+            if (!scene.find_intersection(Ray(tem.point + direction * EPSILON, direction), tem)) {
+                return Vector3(0.0);
+            }
+            if (tem.obj_id == obj_id) {
+                break;
+            } else {
+                filter_opacity *= scene.objects[tem.obj_id]->bsdf->filter_opacity();
+            }
+            if (filter_opacity.max() < EPSILON)
+                break;
+        }
+        return filter_opacity;
+    }
 
     Vector3 Pathtracer::trace_pt(Ray ray) {
         HitRecord hd;
@@ -51,36 +69,21 @@ namespace pathtracing {
                 Vector3 l2o = hd.point - pos; //light to object
                 d2 = l2o.norm_square();
                 l2o.normalize();
-                HitRecord tem;
-                Vector3 filter_opacity(1.0);
-                tem.point = pos;
-                while (true) {
-                    if (!scene.find_intersection(Ray(tem.point + l2o * EPSILON, l2o), tem)) {
-                        filter_opacity = Vector3(0.0);
-                        break;
-                    }
-                    if (tem.obj_id == hd.obj_id) {
-                        break;
-                    } else {
-                        filter_opacity *= scene.objects[tem.obj_id]->bsdf->filter_opacity();
-                    }
-                    if (filter_opacity.max() < EPSILON)
-                        break;
-                }
-                if (filter_opacity.max() > EPSILON) {
+                Vector3 visibility = visibility_test(pos, l2o, hd.obj_id);
+
+                if (visibility.max() > EPSILON) {
                     br.wo = w2m * (l2o.normalize() * -1); //object to light
 
                     Matrix3x3 w2l = Matrix3x3::worldToModel(lightNormal);
                     Vector3 l2o_lightSpace = w2l * l2o;
 
                     light_pdf /= std::max(EPSILON, cos_theta(l2o_lightSpace)) * light->bsdf->attenuation(d2);
-                    filter_opacity *= light->Le(pos, l2o_lightSpace) * bsdf->f(br, bsdf_pdf) * std::max(0.0, cos_theta(br.wo)) *
+                    visibility *= light->Le(pos, l2o_lightSpace) * bsdf->evalBSDF(br, bsdf_pdf) * std::max(0.0, cos_theta(br.wo)) *
                             cumulative;
 
-
                     //convert to pw = pa / G()
-                    filter_opacity /= (W_BIAS * bsdf_pdf + light_pdf); //weights
-                    rad += filter_opacity;
+                    visibility /= (W_BIAS * bsdf_pdf + light_pdf); //weights
+                    rad += visibility;
                 }
             }
 
@@ -88,10 +91,10 @@ namespace pathtracing {
 
             if (niter >= max_idl_bounce) {
                 //ROUSSIAN ROULETTE to terminate path
-                double p = std::min(1.0, cumulative.max()) * terminate_param;
+                double p = cumulative.max() * terminate_param;
                 if (drand48() >= p)
                     break;
-                cumulative /= p;
+                cumulative /= std::min(1.0, p);
             }
 
             br.wo = m2w * br.wo;

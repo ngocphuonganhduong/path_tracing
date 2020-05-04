@@ -30,7 +30,6 @@ namespace pathtracing {
     Vector3 uniformSampleSphere(double &pdf);
     double uniformSampleSpherePDF();
 
-//    Vector3 sample_glossy(double &pdf, const double &n, const double &limit_angle);
 
     Vector3 sampleHemisphere(double &pdf, const Vector3 &normal);
     inline double random_uniform() {

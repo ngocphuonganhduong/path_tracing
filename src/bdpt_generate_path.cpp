@@ -28,10 +28,10 @@ namespace pathtracing {
 
             if (niter >= max_idl_bounce) {
                 //ROUSSIAN ROULETTE to terminate path
-                double p = std::min(1.0, cumulative.max()) * terminate_param;
+                double p = cumulative.max() * terminate_param;
                 if (drand48() >= p)
                     break;
-                cumulative /= p;
+                cumulative /= std::min(1.0, p);
             }
 
             if (niter > 0) //backward pdf * G
@@ -50,17 +50,12 @@ namespace pathtracing {
             if (bsdf->is_light()) {
                 Vector3 le = scene.objects[hd.obj_id]->Le(hd.point, br.wi);
                 if (le.max() > EPSILON) {
-////                    cumulative_pdf *= scene.objects[hd.obj_id]->sampleSurfacePositionPDF();
-//                    Vertex v(hd, cumulative, cumulative_pdf);
-//                    v.dir = br.wi;
-//                    v.is_emissive = true;
-//                    path.push_back(v);
                     break;
                 }
 
             }
+            backward_pdf_G = pdf * fabs(cos_theta(br.wo));
 
-            backward_pdf_G = pdf * std::max(0.0, cos_theta(br.wo));
             br.wo = m2w * br.wo;
             ray = Ray(hd.point + br.wo * EPSILON, br.wo);
             ++niter;
@@ -129,10 +124,10 @@ namespace pathtracing {
 
             if (niter >= max_dl_bounce) {
                 //ROUSSIAN ROULETTE to terminate path
-                double p = std::min(1.0, cumulative.max())  * terminate_param;
+                double p = cumulative.max()  * terminate_param;
                 if (drand48() >= p)
                     break;
-                cumulative /= p;
+                cumulative /= std::min(1.0, p);
             }
 
 
@@ -147,7 +142,7 @@ namespace pathtracing {
             cumulative *= bsdf->evalSampleBSDF(br, pdf);
 
 
-            backward_pdf_G = std::max(0.0, cos_theta(br.wo)) * pdf; //backward pdf
+            backward_pdf_G = fabs(cos_theta(br.wo)) * pdf; //backward pdf
 
             br.wo = m2w * br.wo;
             ray = Ray(hd.point + br.wo * EPSILON, br.wo);

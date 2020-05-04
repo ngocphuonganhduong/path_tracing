@@ -37,6 +37,7 @@ namespace pathtracing {
         float r = (2 * x - float(width)) / float(width);
         Vector3 pos = mid + cam.up * u + cam.right * r;
         Vector3 direction = pos - cam.pos; //cam to pos
+        direction.normalize();
         return Ray(cam.pos, direction);
     }
 

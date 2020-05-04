@@ -30,7 +30,7 @@ namespace pathtracing {
         /**
          * Refraction
          */
-        double ni = 0.01; // optical density (aka index of refraction
+        double ni = 0.0000001; // optical density (aka index of refraction
 
         /**
          * Transparency

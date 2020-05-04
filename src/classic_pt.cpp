@@ -32,10 +32,10 @@ namespace pathtracing {
 
             if (niter >= max_idl_bounce) {
                 //ROUSSIAN ROULETTE to terminate path
-                double p = std::min(1.0, cumulative.max()) * terminate_param;
+                double p = cumulative.max() * terminate_param;
                 if (drand48() >= p)
                     break;
-                cumulative /= p;
+                cumulative /= std::min(1.0, p);
             }
 
             cumulative *= bsdf->evalSampleBSDF(br, bsdf_pdf);

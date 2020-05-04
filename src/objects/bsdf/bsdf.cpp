@@ -23,57 +23,56 @@ namespace pathtracing {
 
     Vector3 BSDF::evalSampleBSDF(BSDFRecord &data, double &pdf) const {
         double rnd = drand48();
-        Vector3 f;
+        Vector3 f(1.0);
         if (rnd < mat_->d) //bsdf
         {
-            f = sampleBRDF(data, pdf) * mat_->d;
+            if (!data.wi.refract(data.wo, 1.0 / mat_->ni)) {
+                f = sampleBRDF(data, pdf);
+                f *= fabs(cos_theta(data.wo)) / pdf; //wo here is direction from light to hit point.
+
+            } else {
+                double kr = computeFresnelReflectivity(cos_theta(data.wi), 1, mat_->ni);
+                double rnd = drand48();
+
+                if (rnd < kr) {
+                    f = sampleBRDF(data, pdf);
+                    f *= fabs(cos_theta(data.wo)) / pdf; //wo here is direction from light to hit point.
+                    pdf *= kr;
+                } else {
+                    pdf = (1 - kr);
+                }
+            }
             pdf *= mat_->d;
-            f *= fabs(cos_theta(data.wo)) / pdf; //wo here is direction from light to hit point.
 
-//            if (!data.wi.refract(data.wo, 1.0 / mat_->ni)) {
-//                f = sampleBRDF(data, pdf) * mat_->d;
-//                pdf *= mat_->d;
-//                f *= fabs(cos_theta(data.wo)) / pdf; //wo here is direction from light to hit point.
-//
-//            } else {
-//                double kr = computeFresnelReflectivity(cos_theta(data.wi), 1, mat_->ni);
-//                double rnd = drand48();
-//
-//                if (rnd < kr) {
-//                    f = sampleBRDF(data, pdf) * mat_->d;
-//                    pdf *= mat_->d;
-//                    f *= fabs(cos_theta(data.wo)) / pdf; //wo here is direction from light to hit point.
-//                } else {
-//                    f = Vector3(0);
-//                    pdf = 1.0;
-//                }
-//            }
-
-        } else {
+        }
+        else {
             f = mat_->tf; // * 1 - mat_->d / pdf = 1.0
             data.wo = data.wi * -1;
             pdf = 1 - mat_->d;
         }
         return f;
-
-//        double kr = computeFresnelReflectivity(cos_theta(data.wi), 1, mat_->ni);
-//        std::cout << kr << "\n";
-//        double rnd = drand48();
-//        Vector3 f = sampleBRDF(data, pdf);
-//        if (rnd < kr) //internal reflection
-//        {
-//            return f * kr;
-//        }
-//        //total refraction
-//        data.wo.flip_z();
-//        return (1 - kr);
     }
 
-    Vector3 BSDF::f(const BSDFRecord &data, double &pdf) const {
-        return brdf(data, pdf) * mat_->d;
+    Vector3 BSDF::evalBSDF(const BSDFRecord &data, double &pdf) const {
+        double n = 1.0 / mat_->ni;
+
+        if (data.wo.z() <= 0)
+            n = 1.0 / n;
+        const double sinT2 = n * n * std::max(0.0, (1 - data.wo.z() * data.wo.z()));
+
+        if (sinT2 >= 1) {
+            return brdf(data, pdf) * mat_->d;
+        }
+        double kr = computeFresnelReflectivity(cos_theta(data.wo), 1, mat_->ni);
+        double rnd = drand48();
+        Vector3 f;
+        if (rnd < kr) {
+            f = brdf(data, pdf) * mat_->d;
+            pdf *= kr;
+        } else {
+            pdf = (1 - kr);
+        }
+        return f;
     }
 
-//    Vector3 BSDF::evalBSDF(BSDFRecord &data, double &pdf) const {
-//        return evalBRDF(data) * mat_->d;
-//    }
 }
