@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), std::make_shared<DiffuseBSDF>(mat2), 1);
 
     shared_mat mat_light = std::make_shared<Material>(ka, white, ks, ns);
-    mat_light->set_emission(white * 5, 1, 0, 1);
+    mat_light->set_emission(white * 10, 0.4, 0, 1);
 
 
     shared_obj area_light = std::make_shared<Square>(Vector3(0, distance - 4, half_l - 0.1),
