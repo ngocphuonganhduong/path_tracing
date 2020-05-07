@@ -13,7 +13,8 @@ namespace pathtracing {
         normal = uniformSampleSphere(pdf);
         return position +  normal * radius;
     }
-    double Sphere::sampleSurfacePositionPDF(HitRecord &hit_data) const {
+
+    double Sphere::sampleSurfacePositionPDF(const HitRecord &hit_data) const {
         return uniformSampleSpherePDF();
     }
 

@@ -158,7 +158,7 @@ namespace pathtracing {
         return position + tri.sampleSurfacePosition(pdf, surfaceNormal);
     }
 
-    double TriangleMesh::sampleSurfacePositionPDF(HitRecord &hit_data) const
+    double TriangleMesh::sampleSurfacePositionPDF(const HitRecord &hit_data) const
     {
         auto tri = triangles[hit_data.tri_idx];
         return tri.sampleSurfacePositionPDF();

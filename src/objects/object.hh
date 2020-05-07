@@ -16,7 +16,7 @@ namespace pathtracing {
 
         virtual double sampleDirectionPDF(const BSDFRecord &data) const = 0;
 
-        virtual double sampleSurfacePositionPDF(HitRecord &hit_data) const = 0;
+        virtual double sampleSurfacePositionPDF(const HitRecord &hit_data) const = 0;
 
         virtual Vector3 sampleSurfacePosition(double &pdf, Vector3& normal) const = 0;
 
@@ -46,7 +46,7 @@ namespace pathtracing {
 
         Vector3 sampleSurfacePosition(double &pdf, Vector3& normal) const final;
 
-        double sampleSurfacePositionPDF(HitRecord &hit_data) const;
+        double sampleSurfacePositionPDF(const HitRecord &hit_data) const;
 
     private:
         float radius;
@@ -75,7 +75,7 @@ namespace pathtracing {
         TriangleMesh(const Vector3 &position, shared_bsdf bsdf, TriVector &triangles,
                      const Vector3 &scale, const Vector3 &rotation);
 
-        double sampleSurfacePositionPDF(HitRecord &hit_data) const;
+        double sampleSurfacePositionPDF(const HitRecord &hit_data) const;
 
         double sampleDirectionPDF(const BSDFRecord &data) const final;
 
@@ -97,7 +97,7 @@ namespace pathtracing {
 
         bool hit(const Ray &r, HitRecord &hit_data) const final;
 
-        double sampleSurfacePositionPDF(HitRecord &hit_data) const;
+        double sampleSurfacePositionPDF(const HitRecord &hit_data) const;
 
         double sampleDirectionPDF(const BSDFRecord &data) const final;
 
