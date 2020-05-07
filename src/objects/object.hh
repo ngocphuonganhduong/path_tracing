@@ -12,7 +12,7 @@ namespace pathtracing {
     public:
         Object(const Vector3 &position, shared_bsdf bsdf);
 
-        virtual bool hit(const Ray &, HitRecord &hit_data) const = 0;
+        virtual bool hit(const Ray &, HitRecord &hit_data) = 0;
 
         virtual double sampleDirectionPDF(const BSDFRecord &data) const = 0;
 
@@ -40,7 +40,7 @@ namespace pathtracing {
     public:
         Sphere(const Vector3 &position, shared_bsdf bsdf, float radius);
 
-        bool hit(const Ray &r, HitRecord &hit_data) const final;
+        bool hit(const Ray &r, HitRecord &hit_data) final;
 
         double sampleDirectionPDF(const BSDFRecord &data) const final;
 
@@ -79,7 +79,7 @@ namespace pathtracing {
 
         double sampleDirectionPDF(const BSDFRecord &data) const final;
 
-        bool hit(const Ray &r, HitRecord &hit_data) const final;
+        bool hit(const Ray &r, HitRecord &hit_data) final;
 
         Vector3 sampleSurfacePosition(double &pdf, Vector3& normal) const final;
 
@@ -88,6 +88,8 @@ namespace pathtracing {
                  const Triangle &tri) const;
 
         TriVector triangles;
+
+        unsigned last_hit_triangle_idx;
     };
 
     //SQUARE
@@ -95,7 +97,7 @@ namespace pathtracing {
     public:
         Square(const Vector3 &position, shared_bsdf bsdf, const Vector3 &normal, const Vector3 &up, float halfSize);
 
-        bool hit(const Ray &r, HitRecord &hit_data) const final;
+        bool hit(const Ray &r, HitRecord &hit_data) final;
 
         double sampleSurfacePositionPDF() const;
 

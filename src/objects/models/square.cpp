@@ -30,7 +30,7 @@ namespace pathtracing {
     }
 
 
-    bool Square::hit(const Ray &r, HitRecord &hit_data) const {
+    bool Square::hit(const Ray &r, HitRecord &hit_data) {
         float denom = this->normal.dot(r.get_direction());
         if (std::abs(denom) > 0.000001) {
             float t = (position - r.get_origin()).dot(this->normal) / denom;
