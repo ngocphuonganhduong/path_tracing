@@ -21,7 +21,7 @@ namespace pathtracing {
         return uniformSampleSpherePDF();
     }
 
-    bool Sphere::hit(const Ray &r, HitRecord &hit_data) {
+    bool Sphere::hit(const Ray &r, HitRecord &hit_data) const {
         Vector3 l = r.get_origin() - position;
         //( t*t* u*u + 2*t*u*l + l*l - r*r)
         float a = r.get_direction().dot(r.get_direction());

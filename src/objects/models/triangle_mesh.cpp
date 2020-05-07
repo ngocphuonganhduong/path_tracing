@@ -87,8 +87,6 @@ namespace pathtracing {
             // Compute the triangle's area
             (*tri).compute_area();
         }
-
-        last_hit_triangle_idx = 0;
     }
 
 //
@@ -133,20 +131,18 @@ namespace pathtracing {
         return false;
     }
 
-    bool TriangleMesh::hit(const Ray &r, HitRecord &hit_data) {
+    bool TriangleMesh::hit(const Ray &r, HitRecord &hit_data) const {
         bool hit = false;
         HitRecord tem;
         float min_ds = INFINITY;
         float ds = 0;
 
-        for (unsigned tri_idx = 0; tri_idx < triangles.size(); tri_idx++)
-        {
-            if (this->hit(r, tem, triangles[tri_idx])) {
+        for (auto tri: this->triangles) {
+            if (this->hit(r, tem, tri)) {
                 ds = (tem.point - r.get_origin()).norm_square();
                 if (!hit || ds < min_ds) {
                     hit_data = tem;
                     min_ds = ds;
-                    last_hit_triangle_idx = tri_idx;
                 }
                 hit = true;
             }
@@ -162,7 +158,7 @@ namespace pathtracing {
 
     double TriangleMesh::sampleSurfacePositionPDF() const
     {
-        auto tri = triangles[last_hit_triangle_idx];
+        auto tri = triangles[round(drand48() * (triangles.size() - 1))];
         return tri.sampleSurfacePositionPDF();
     }
 
