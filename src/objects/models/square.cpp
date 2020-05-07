@@ -11,7 +11,7 @@ namespace pathtracing {
         this->normal.normalize();
     }
 
-    double Square::sampleSurfacePositionPDF() const {
+    double Square::sampleSurfacePositionPDF(HitRecord &hit_data) const {
         return 1.0 / (halfSize * halfSize);
     }
 

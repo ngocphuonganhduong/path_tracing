@@ -9,6 +9,7 @@ namespace pathtracing {
 
     struct HitRecord {
         unsigned int obj_id;
+        unsigned int tri_idx; //if the object is a triangle mesh, store the triangle idx
         Vector3 point;
         Vector3 normal;
     };

@@ -54,7 +54,7 @@ namespace pathtracing {
             if (bsdf->is_light()) {
                 if (niter > 0) {
                     d2 = (hd.point - ray.get_origin()).norm_square();
-                    light_pdf = scene.objects[hd.obj_id]->sampleSurfacePositionPDF();
+                    light_pdf = scene.objects[hd.obj_id]->sampleSurfacePositionPDF(hd);
                     light_pdf /= scene.objects[hd.obj_id]->bsdf->attenuation(d2) * std::max(EPSILON, cos_theta(br.wi));//* scene.objects[hd.obj_id]->bsdf->attenuation(d2);
                     rad += scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative * W_BIAS * bsdf_pdf /
                            (W_BIAS * bsdf_pdf + light_pdf);

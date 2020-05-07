@@ -137,11 +137,13 @@ namespace pathtracing {
         float min_ds = INFINITY;
         float ds = 0;
 
-        for (auto tri: this->triangles) {
-            if (this->hit(r, tem, tri)) {
+        for (unsigned tri_idx = 0; tri_idx < triangles.size(); tri_idx++)
+        {
+            if (this->hit(r, tem, triangles[tri_idx])) {
                 ds = (tem.point - r.get_origin()).norm_square();
                 if (!hit || ds < min_ds) {
                     hit_data = tem;
+                    hit_data.tri_idx = tri_idx;
                     min_ds = ds;
                 }
                 hit = true;
@@ -156,9 +158,9 @@ namespace pathtracing {
         return position + tri.sampleSurfacePosition(pdf, surfaceNormal);
     }
 
-    double TriangleMesh::sampleSurfacePositionPDF() const
+    double TriangleMesh::sampleSurfacePositionPDF(HitRecord &hit_data) const
     {
-        auto tri = triangles[round(drand48() * (triangles.size() - 1))];
+        auto tri = triangles[hit_data.tri_idx];
         return tri.sampleSurfacePositionPDF();
     }
 
