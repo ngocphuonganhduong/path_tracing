@@ -42,13 +42,13 @@ namespace pathtracing {
 
 
     void Pathtracer::render_y(int thread_id, int starty, int endy, Vector3 (Pathtracer::*trace_func)(Ray)) {
-        for (int y = starty; y < endy; ++y)
-            for (int x = 0; x < scene.width; ++x) {
+        for (double y = starty; y < endy; ++y)
+            for (double x = 0; x < scene.width; ++x) {
                 Vector3 c;
-                for (unsigned int sx = 0; sx < s_size; ++sx)
-                    for (unsigned int sy = 0; sy < s_size; ++sy) {
-                        c += (this->*trace_func)(scene.init_ray(double(x) - area_size / 2 + drand48() * area_size,
-                                                                double(y) - area_size / 2 + drand48() * area_size));
+                for (double sx = 0; sx < 1.0; sx += area_size)
+                    for (double sy = 0; sy < 1.0; sy += area_size) {
+                        c += (this->*trace_func)(scene.init_ray(x - 0.5 + sx + drand48() * area_size,
+                                                                y - 0.5 + sy + drand48() * area_size));
                     }
                 c /= n_sam;
                 set_values(x, y, c);
