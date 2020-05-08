@@ -4,15 +4,15 @@ using namespace pathtracing;
 
 int main(int argc, char **argv) {
     //color
-    Vector3 red(1, 0, 0);
-    Vector3 green(0, 1, 0);
-    Vector3 blue(0, 0, 1);
+    Vector3 red(1, 0.4, 0.4);
+    Vector3 green(0.4, 1, 0.4);
+    Vector3 blue(0.4, 0.4, 1);
     Vector3 pink(1, 0.6, 0.8);
     Vector3 white(1, 1, 1);
     Vector3 black(0, 0, 0);
-    Vector3 yellow(1, 1, 0);
+    Vector3 yellow(1, 1, 0.2);
     Vector3 cyan(0, 1, 1);
-    Vector3 purple(0.7, 0, 1);
+    Vector3 purple(0.9, 0.3, 1);
     Vector3 wall_color(0.95, 0.92, 0.97);
     double half_l = 4;
     double distance = 16;
@@ -28,15 +28,15 @@ int main(int argc, char **argv) {
 
     //OBJECT
     //type, ka, kd, ks, ns, ni, d
-    shared_mat mat = std::make_shared<Material>(ka, pink, white, 32, 1.125);
+    shared_mat mat = std::make_shared<Material>(ka, pink, white, 32);
     auto o1 = std::make_shared<Sphere>(Vector3(1.5, 11, -2.5), std::make_shared<DiffuseBSDF>(mat), 1.4);
 
     shared_mat mat2 = std::make_shared<Material>(ka, yellow, black, 32);
-    mat2->set_transparency(0.5, white);
+//    mat2->set_transparency(0.5, white);
     auto o2 = std::make_shared<Sphere>(Vector3(-2, 10, -3), std::make_shared<DiffuseBSDF>(mat2), 1);
 
     shared_mat mat_light = std::make_shared<Material>(ka, white, ks, ns);
-    mat_light->set_emission(white * 10, 0.4, 0, 1);
+    mat_light->set_emission(white * 7, 0.4, 0, 1);
 
 
     shared_obj area_light = std::make_shared<Square>(Vector3(0, distance - 4, half_l - 0.1),

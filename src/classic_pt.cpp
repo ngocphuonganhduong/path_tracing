@@ -6,7 +6,8 @@ namespace pathtracing {
         HitRecord hd;
         Vector3 rad;
         Vector3 cumulative(1.0);
-        double bsdf_pdf = 2.0;
+        double bsdf_pdf;
+        BSDFRecord br;
         int niter = 0;
 
         while (true) {
@@ -17,14 +18,10 @@ namespace pathtracing {
             hd.normal.normalize();
             Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
             Matrix3x3 w2m = m2w.transpose();
-            BSDFRecord br;
 
             //wi : from hit point to eye vertex
             br.wi = w2m * (ray.get_direction()) * -1;
             shared_bsdf bsdf = scene.objects[hd.obj_id]->bsdf;
-
-            //AMBIENT
-            rad += scene.ambient_light * bsdf->ka() * cumulative * (bsdf_pdf - 1); //iter = 0: rad += la
 
             if (bsdf->is_light()) { //le(x, theta_x)
                 rad += scene.objects[hd.obj_id]->Le(hd.point, br.wi) * cumulative;

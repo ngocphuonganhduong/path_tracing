@@ -27,6 +27,9 @@ namespace pathtracing {
         HitRecord hd;
         Vector3 rad;
         Vector3 cumulative(1.0);
+        Vector3 lightNormal;
+        BSDFRecord br;
+
         double bsdf_pdf = 1.0;
         double light_pdf = 0.0;
         double d2;
@@ -38,17 +41,10 @@ namespace pathtracing {
             }
             shared_bsdf bsdf = scene.objects[hd.obj_id]->bsdf;
 
-            //AMBIENT
-            if (niter == 0)
-                rad += scene.ambient_light * bsdf->ka() * cumulative * bsdf_pdf;
-            else
-                rad += scene.ambient_light * bsdf->ka() * cumulative * (bsdf_pdf - 1);
-
             hd.normal.normalize();
             Matrix3x3 m2w = Matrix3x3::modelToWorld(hd.normal);
             Matrix3x3 w2m = m2w.transpose();
 
-            BSDFRecord br;
             br.wi = w2m * (ray.get_direction().normalize()) * -1;
 
             if (bsdf->is_light()) {
@@ -64,7 +60,6 @@ namespace pathtracing {
             }
 
             for (auto light: scene.lights) {
-                Vector3 lightNormal;
                 Vector3 pos = light->sampleSurfacePosition(light_pdf, lightNormal);
                 Vector3 l2o = hd.point - pos; //light to object
                 d2 = l2o.norm_square();
