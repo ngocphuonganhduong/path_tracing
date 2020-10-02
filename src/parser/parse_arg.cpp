@@ -6,7 +6,7 @@ namespace pathtracing {
     void parse_arguments(Pathtracer& pt, int argc, char **argv, double& x, double& y)
     {
 
-        for (int i = 1; i < argc; ++i)
+        for (int i = 2; i < argc; ++i)
         {
             if (strcmp(argv[i], "--debug") == 0 || strcmp(argv[i], "-d") == 0) {
                 debug = true;
