@@ -3,7 +3,7 @@
 
 Most of implemented algorithms are based on [Mathematical Models and Monte Carlo Algorithms for Physically Based Rendering](https://graphics.cs.kuleuven.be/publications/ERICLPHD/index.html).
 
-A demo is [here](https://youtu.be/p_MTNaqF6PU).
+![demo](./output_example/demo.GIF)
 
 Algorithm/features implementations:
 - Stratified/jittered sampling
@@ -29,7 +29,7 @@ Options:
 Example output of 
 ```./main cornell_box -ns 216```
 
-![cornell_box](./output_example/output.jpg "Optional Title")
+![cornell_box](./output_example/output.jpg)
 
 ### References
 All of the algorithms used in this project are based on references below:
